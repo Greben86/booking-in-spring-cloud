@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: module-booking
+  r2dbc:
+    url: r2dbc:h2:mem:///mydb
+    username: sa
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: on
+    show-sql: on
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect

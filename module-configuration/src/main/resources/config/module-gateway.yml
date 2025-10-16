@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: module-gateway
+  cloud:
+    config:
+      import-check:
+        enabled: false
+    gateway:
+      routes:
+        - id: module-booking
+          uri: http://module-booking:8080
+          predicates:
+            - Path=/login,/registration
+        - id: module-hotel-management
+          uri: http://module-hotel-management:8080
+          predicates:
+            - Path=/users,/users/{id},/hotels,/hotels/{id}
+          filters:
+            - JwtAuthFilter

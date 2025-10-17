@@ -18,7 +18,7 @@
 	<description>Бронирование номеров гостиниц</description>
     <modules>
 <!--        <module>module-gateway</module>-->
-<!--        <module>module-hotel-management</module>-->
+        <module>module-hotel-management</module>
         <module>module-booking</module>
 <!--        <module>module-configuration</module>-->
     </modules>

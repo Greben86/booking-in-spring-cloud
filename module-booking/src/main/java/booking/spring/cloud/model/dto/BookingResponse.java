@@ -1,5 +1,6 @@
 package booking.spring.cloud.model.dto;
 
+import booking.spring.cloud.model.entities.Status;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -28,5 +29,7 @@ public record BookingResponse(
         @Schema(description = "Дата и час окончания бронирования", pattern = "dd-MM-yyyy HH")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH", timezone="Europe/Moscow")
         @NotNull(message = "Дата и час окончания бронирования не может быть пустым")
-        Date finish) {
+        Date finish,
+        @Schema(description = "Статус бронирования", example = "Ожидает")
+        Status status) {
 }

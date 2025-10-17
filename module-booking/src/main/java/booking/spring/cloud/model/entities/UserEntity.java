@@ -23,6 +23,6 @@ public class UserEntity {
     @Column(length = 50)
     private String username;
 
-    @Column(length = 255)
+    @Column
     private String password;
 }

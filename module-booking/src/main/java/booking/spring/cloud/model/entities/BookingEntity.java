@@ -38,4 +38,6 @@ public class BookingEntity {
     private Date start;
 
     private Date finish;
+
+    private Status status;
 }

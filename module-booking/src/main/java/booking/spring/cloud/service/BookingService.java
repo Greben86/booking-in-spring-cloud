@@ -16,33 +16,35 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookingService {
 
-    private final BookingRepository bookingRepository;
+    private final BookingRepository repository;
+    private final BookingMapper mapper;
 
     public List<BookingResponse> getAll() {
-        return bookingRepository.findAll().stream()
-                .map(BookingMapper.MAPPER::entityToResponse)
+        return repository.findAll().stream()
+                .map(mapper::entityToResponse)
                 .toList();
     }
 
     public BookingResponse getById(Long id) {
-        return bookingRepository.findById(id)
-                .map(BookingMapper.MAPPER::entityToResponse)
+        return repository.findById(id)
+                .map(mapper::entityToResponse)
                 .orElse(null);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public BookingResponse saveBooking(BookingRequest booking) {
-        return BookingMapper.MAPPER.entityToResponse(
-                bookingRepository.save(BookingMapper.MAPPER.requestToEntity(booking)));
+        var entity = mapper.requestToEntity(booking);
+        entity = repository.save(entity);
+        return mapper.entityToResponse(entity);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean deleteBooking(Long id) {
-        if (bookingRepository.findById(id).isEmpty()) {
+        if (repository.findById(id).isEmpty()) {
             return false;
         }
 
-        bookingRepository.deleteById(id);
+        repository.deleteById(id);
 
         return true;
     }

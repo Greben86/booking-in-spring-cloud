@@ -4,11 +4,12 @@ import booking.spring.cloud.model.dto.BookingRequest;
 import booking.spring.cloud.model.dto.BookingResponse;
 import booking.spring.cloud.model.entities.BookingEntity;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BookingMapper {
-    BookingMapper MAPPER = Mappers.getMapper(BookingMapper.class);
 
     BookingEntity requestToEntity(BookingRequest dto);
 

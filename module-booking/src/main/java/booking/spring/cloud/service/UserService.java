@@ -16,37 +16,39 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final UserRepository repository;
+    private final UserMapper mapper;
 
     public List<UserResponse> getAll() {
-        return userRepository.findAll().stream()
-                .map(UserMapper.MAPPER::entityToResponse)
+        return repository.findAll().stream()
+                .map(mapper::entityToResponse)
                 .toList();
     }
 
     public UserResponse getById(final Long id) {
-        return userRepository.findById(id)
-                .map(UserMapper.MAPPER::entityToResponse)
+        return repository.findById(id)
+                .map(mapper::entityToResponse)
                 .orElse(null);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public UserResponse register(final UserRequest user) {
-        if (userRepository.findByUsername(user.username()).isPresent()) {
+        if (repository.findByUsername(user.username()).isPresent()) {
             throw new IllegalStateException("Такой уже есть");
         }
 
-        return UserMapper.MAPPER.entityToResponse(
-                userRepository.save(UserMapper.MAPPER.requestToEntity(user)));
+        var entity = mapper.requestToEntity(user);
+        entity = repository.save(entity);
+        return mapper.entityToResponse(entity);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean deleteUser(final UserRequest user) {
-        if (userRepository.findByUsername(user.username()).isEmpty()) {
+        if (repository.findByUsername(user.username()).isEmpty()) {
             return false;
         }
 
-        userRepository.delete(UserMapper.MAPPER.requestToEntity(user));
+        repository.delete(mapper.requestToEntity(user));
 
         return true;
     }

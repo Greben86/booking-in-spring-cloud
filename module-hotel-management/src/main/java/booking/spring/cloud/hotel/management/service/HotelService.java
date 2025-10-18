@@ -32,12 +32,6 @@ public class HotelService {
                 .orElse(null);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
-    public Hotel getByIdOrElseThrow(final Long id) {
-        return repository.findById(id)
-                .orElseThrow(NullPointerException::new);
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public HotelResponse save(HotelRequest dto) {
         var entity = mapper.dtoToEntity(dto);

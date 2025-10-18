@@ -1,9 +1,7 @@
 package booking.spring.cloud.hotel.management.mapper;
 
 import booking.spring.cloud.hotel.management.model.dto.ReservationDto;
-import booking.spring.cloud.hotel.management.model.entities.Hotel;
 import booking.spring.cloud.hotel.management.model.entities.Reservation;
-import booking.spring.cloud.hotel.management.model.entities.Room;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -14,11 +12,7 @@ import org.mapstruct.ReportingPolicy;
 public interface ReservationMapper {
 
     @Mapping(target = "hotelId", expression = "java(reservation.getHotel().getId())")
+    @Mapping(target = "roomId", expression = "java(reservation.getRoom().getId())")
     @Mapping(target = "roomNumber", expression = "java(reservation.getRoom().getNumber())")
     ReservationDto entityToDto(Reservation reservation);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "hotel", source = "hotelEntity")
-    @Mapping(target = "room", source = "roomEntity")
-    Reservation dtoToEntity(ReservationDto dto, Hotel hotelEntity, Room roomEntity);
 }

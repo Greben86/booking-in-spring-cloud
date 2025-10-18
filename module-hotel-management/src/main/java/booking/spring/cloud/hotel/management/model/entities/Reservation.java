@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -22,9 +22,7 @@ public class Reservation {
     @EqualsAndHashCode.Include
     private long id;
 
-    private Date start;
-
-    private Date finish;
+    private LocalDate date;
 
     @ManyToOne
     private Hotel hotel;

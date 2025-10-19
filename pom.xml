@@ -21,6 +21,7 @@
         <module>module-hotel-management</module>
         <module>module-booking</module>
         <module>module-configuration</module>
+        <module>module-discovery</module>
     </modules>
 
     <properties>
@@ -140,6 +141,15 @@
 				<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 				<version>${openapi.version}</version>
 			</dependency>
+
+            <!-- BOM Spring Cloud для согласованности версий -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
 
 			<dependency>
 				<groupId>io.jsonwebtoken</groupId>

@@ -53,13 +53,6 @@ public class RoomController {
         }
     }
 
-    @GetMapping("/{hotelId}/recommend")
-    @ResponseStatus(HttpStatus.OK)
-    public List<RoomDto> getRecommend(@PathVariable Long hotelId,
-                                      @RequestParam(name = "date") LocalDate date) {
-        return service.getRecommend(hotelId, date);
-    }
-
     @GetMapping("/{id}/confirm-availability")
     @ResponseStatus(HttpStatus.OK)
     public ReservationDto confirmAvailability(@PathVariable Long id,

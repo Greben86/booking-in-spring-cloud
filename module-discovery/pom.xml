@@ -10,22 +10,15 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>module-configuration</artifactId>
+    <artifactId>module-discovery</artifactId>
 
     <dependencies>
-        <!-- Spring Boot Starter Web (для Config Server нужен web) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
 
         <!-- Сторонняя библиотека Eureka и другое не нужны для Config Server -->
-        <!-- Зависимость сервера конфигурации -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-config-server</artifactId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
         </dependency>
-
 
         <!-- Actuator для /refresh и мониторинга -->
         <dependency>

@@ -84,6 +84,9 @@ public class RoomService {
         reservation.setDate(date);
         reservationRepository.save(reservation);
 
+        room.setTimes_booked(room.getTimes_booked() + 1);
+        roomRepository.save(room);
+
         return reservationMapper.entityToDto(reservation);
     }
 

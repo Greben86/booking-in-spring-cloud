@@ -1,31 +1,71 @@
 version: "3.8"
 services:
   configuration:
-    container_name: configuration-service
+    container_name: module-configuration
     build:
       dockerfile_inline: |
         FROM eclipse-temurin:21-jre-alpine-3.22
         COPY ./module-configuration/target/*.jar app.jar
+        RUN apk add --no-cache curl
+        EXPOSE 8888
         ENTRYPOINT ["java", "-jar", "app.jar"]
     environment:
       PORT_SERVICE: 8888
-#      DB_URL: jdbc:postgresql://postgres:5432/hakaton_db
-#      DB_USERNAME: admin
-#      DB_PASSWORD: admin
     ports:
       - "8888:8888"
-#    restart: unless-stopped
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: '4'
-#          memory: 1G
-#    healthcheck:
-#      test: ["CMD", "curl", "-f", "http://configuration:8888/actuator/health"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-#      start_period: 10s
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "true" ]
+      interval: 24h
+      start_period: 25s
+      start_interval: 5s
+    networks:
+      - booking-network
+
+  booking:
+    container_name: booking-service
+    build:
+      dockerfile_inline: |
+        FROM eclipse-temurin:21-jre-alpine-3.22
+        COPY ./module-booking/target/*.jar app.jar
+        RUN apk add --no-cache curl
+        EXPOSE 8081
+        ENTRYPOINT ["java", "-jar", "app.jar"]
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://booking-service:8081/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      configuration:
+        condition: service_healthy
+    networks:
+      - booking-network
+
+  hotel_management:
+    container_name: hotel-management-service
+    build:
+      dockerfile_inline: |
+        FROM eclipse-temurin:21-jre-alpine-3.22
+        COPY ./module-hotel-management/target/*.jar app.jar
+        RUN apk add --no-cache curl
+        EXPOSE 8082
+        ENTRYPOINT ["java", "-jar", "app.jar"]
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://hotel-management-service:8082/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      configuration:
+        condition: service_healthy
     networks:
       - booking-network
 
@@ -35,82 +75,20 @@ services:
       dockerfile_inline: |
         FROM eclipse-temurin:21-jre-alpine-3.22
         COPY ./module-gateway/target/*.jar app.jar
+        RUN apk add --no-cache curl
+        EXPOSE 8080
         ENTRYPOINT ["java", "-jar", "app.jar"]
-    environment:
-      PORT_SERVICE: 8080
-      DB_URL: jdbc:postgresql://postgres:5432/hakaton_db
-      DB_USERNAME: admin
-      DB_PASSWORD: admin
+    depends_on:
+      configuration:
+        condition: service_healthy
+      booking:
+        condition: service_healthy
+      hotel_management:
+        condition: service_healthy
     ports:
       - "8080:8080"
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-          memory: 1G
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://gateway-service:8888/actuator/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    depends_on:
-      - configuration
     networks:
       - booking-network
-
-  prometheus:
-    image: prom/prometheus:latest
-    user: root
-    volumes:
-      - './config/prometheus/:/etc/prometheus/'
-    container_name: prometheus
-    hostname: prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-      - '--web.enable-admin-api'
-    ports:
-      - "9090:9090"
-    restart: unless-stopped
-    environment:
-      TZ: "Europe/Moscow"
-    networks:
-      - booking-network
-    depends_on:
-      - configuration
-
-  grafana:
-    image: grafana/grafana:latest
-    user: root
-    ports:
-      - "3000:3000"
-    volumes:
-      - "./config/grafana/datasources/prometheus_ds.yml:/etc/grafana/provisioning/datasources/prometheus_ds.yml"
-      - "./config/grafana/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml"
-      - "./config/grafana/prometheus:/var/lib/grafana/dashboards/prometheus"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-    healthcheck:
-      test: [ "CMD-SHELL", "wget -q --tries=1 -O- http://grafana:3000/api/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      - booking-network
-    depends_on:
-      - configuration
-      - prometheus
-
-volumes:
-  hakaton_db-data:
-  pgadmin-data:
 
 networks:
   booking-network:

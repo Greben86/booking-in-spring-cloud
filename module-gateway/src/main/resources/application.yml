@@ -1,8 +1,9 @@
 spring:
   application:
-    name: gateway-service
+    name: module-gateway
   cloud:
     config:
-      uri: http://configuration-service:8888
+      enabled: true
+      uri: module-gateway.yml
   config:
-    import: configserver:http://configuration-service:8888
+    import: configserver:http://module-configuration:8888/

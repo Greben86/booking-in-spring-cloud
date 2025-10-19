@@ -27,6 +27,7 @@ public class Room {
     @Column(length = 10)
     private String number;
 
+    @Column
     private int times_booked;
 
     @ManyToOne

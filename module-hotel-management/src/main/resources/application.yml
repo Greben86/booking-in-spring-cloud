@@ -1,21 +1,9 @@
-server:
-  port: 8088
 spring:
-  datasource:
-    url: jdbc:h2:mem:mydb
-    username: sa
-    password:
-    driverClassName: org.h2.Driver
-  h2:
-    console:
+  application:
+    name: module-hotel-management
+  cloud:
+    config:
       enabled: true
-      path: /h2-console
-      settings.trace: false
-      settings.web-allow-others: false
-
-  jpa:
-    defer-datasource-initialization: true
-
-  sql:
-    init:
-      mode: always
+      uri: module-hotel-management.yml
+  config:
+    import: configserver:http://module-configuration:8888/

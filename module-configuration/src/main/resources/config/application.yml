@@ -1,16 +1,3 @@
 logging:
   level:
     root: INFO
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    fetchRegistry: true
-    service-url:
-      defaultZone: http://discovery-service:8761/eureka
-    healthcheck:
-      enabled: true
-  instance:
-    preferIpAddress: true
-    metadataMap:
-      management.context-path: /

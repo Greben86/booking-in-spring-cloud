@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.util.List;
 
-@FeignClient("hotel-management-service:8082")
+@FeignClient("MODULE-HOTEL-MANAGEMENT")
 public interface HotelManagementClient {
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/hotels/hotel/{hotelId}/recommend")

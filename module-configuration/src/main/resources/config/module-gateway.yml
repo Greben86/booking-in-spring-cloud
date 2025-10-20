@@ -12,11 +12,11 @@ spring:
         webflux:
           routes:
             - id: module-booking
-              uri: http://booking-service:8081
+              uri: http://module-booking:8081
               predicates:
                 - Path=/api/users,/api/users/user,/api/users/user/{id},/registration
             - id: module-hotel-management
-              uri: http://hotel-management-service:8082
+              uri: http://module-hotel-management:8082
               predicates:
                 - Path=/users,/users/{id},/hotels,/hotels/{id}
 

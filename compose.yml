@@ -23,7 +23,7 @@ services:
       - booking-network
 
   discovery:
-    container_name: discovery-service
+    container_name: module-discovery
     build:
       dockerfile_inline: |
         FROM eclipse-temurin:21-jre-alpine-3.22
@@ -39,11 +39,14 @@ services:
       interval: 24h
       start_period: 25s
       start_interval: 5s
+    depends_on:
+      configuration:
+        condition: service_healthy
     networks:
       - booking-network
 
   booking:
-    container_name: booking-service
+    container_name: module-booking
     build:
       dockerfile_inline: |
         FROM eclipse-temurin:21-jre-alpine-3.22
@@ -55,7 +58,7 @@ services:
       - "8081:8081"
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://booking-service:8081/actuator/health" ]
+      test: [ "CMD", "curl", "-f", "http://module-booking:8081/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -69,7 +72,7 @@ services:
       - booking-network
 
   hotel_management:
-    container_name: hotel-management-service
+    container_name: module-hotel-management
     build:
       dockerfile_inline: |
         FROM eclipse-temurin:21-jre-alpine-3.22
@@ -80,7 +83,7 @@ services:
     ports:
       - "8082:8082"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://hotel-management-service:8082/actuator/health" ]
+      test: [ "CMD", "curl", "-f", "http://module-hotel-management:8082/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -94,7 +97,7 @@ services:
       - booking-network
 
   gateway:
-    container_name: gateway-service
+    container_name: module-gateway
     build:
       dockerfile_inline: |
         FROM eclipse-temurin:21-jre-alpine-3.22

@@ -17,3 +17,22 @@ spring:
   jpa:
     open-in-view: on
     show-sql: on
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true # Включение повторных попыток подключения
+      ribbon:
+        enabled: false # Отключаем старый Ribbon
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    fetchRegistry: true
+    service-url:
+      defaultZone: http://module-discovery:8761/eureka
+    healthcheck:
+      enabled: true
+  instance:
+    preferIpAddress: true
+    metadataMap:
+      management.context-path: /

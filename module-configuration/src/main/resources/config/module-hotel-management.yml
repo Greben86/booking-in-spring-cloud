@@ -21,3 +21,16 @@ spring:
   sql:
     init:
       mode: always
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    fetchRegistry: true
+    service-url:
+      defaultZone: http://module-discovery:8761/eureka
+    healthcheck:
+      enabled: true
+  instance:
+    preferIpAddress: true
+    metadataMap:
+      management.context-path: /

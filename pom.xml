@@ -22,6 +22,7 @@
         <module>module-booking</module>
         <module>module-configuration</module>
         <module>module-discovery</module>
+        <module>module-core</module>
     </modules>
 
     <properties>

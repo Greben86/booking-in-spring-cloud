@@ -1,7 +1,7 @@
 package booking.spring.cloud.hotel.management.mapper;
 
-import booking.spring.cloud.hotel.management.model.dto.ReservationDto;
-import booking.spring.cloud.hotel.management.model.entities.Reservation;
+import booking.spring.cloud.core.model.dto.ReservationDto;
+import booking.spring.cloud.hotel.management.entities.Reservation;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;

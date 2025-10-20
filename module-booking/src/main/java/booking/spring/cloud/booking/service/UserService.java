@@ -1,9 +1,9 @@
 package booking.spring.cloud.booking.service;
 
 import booking.spring.cloud.booking.mapper.UserMapper;
-import booking.spring.cloud.booking.model.dto.UserRequest;
-import booking.spring.cloud.booking.model.dto.UserResponse;
 import booking.spring.cloud.booking.repository.UserRepository;
+import booking.spring.cloud.core.model.dto.UserRequest;
+import booking.spring.cloud.core.model.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;

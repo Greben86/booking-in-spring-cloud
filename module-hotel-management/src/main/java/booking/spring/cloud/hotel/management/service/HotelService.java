@@ -1,9 +1,8 @@
 package booking.spring.cloud.hotel.management.service;
 
+import booking.spring.cloud.core.model.dto.HotelRequest;
+import booking.spring.cloud.core.model.dto.HotelResponse;
 import booking.spring.cloud.hotel.management.mapper.HotelMapper;
-import booking.spring.cloud.hotel.management.model.dto.HotelRequest;
-import booking.spring.cloud.hotel.management.model.dto.HotelResponse;
-import booking.spring.cloud.hotel.management.model.entities.Hotel;
 import booking.spring.cloud.hotel.management.repository.HotelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

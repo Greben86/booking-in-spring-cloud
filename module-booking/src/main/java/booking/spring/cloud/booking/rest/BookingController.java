@@ -1,8 +1,8 @@
 package booking.spring.cloud.booking.rest;
 
-import booking.spring.cloud.booking.model.dto.BookingRequest;
-import booking.spring.cloud.booking.model.dto.BookingResponse;
 import booking.spring.cloud.booking.service.BookingService;
+import booking.spring.cloud.core.model.dto.BookingRequest;
+import booking.spring.cloud.core.model.dto.BookingResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
 package booking.spring.cloud.booking.repository;
 
-import booking.spring.cloud.booking.model.entities.User;
+import booking.spring.cloud.booking.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

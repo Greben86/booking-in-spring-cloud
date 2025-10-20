@@ -1,43 +1,34 @@
-package booking.spring.cloud.booking.model.entities;
+package booking.spring.cloud.hotel.management.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.sql.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Entity(name = "bookings")
-public class Booking {
+@Entity(name = "hotels")
+public class Hotel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private long id;
 
-    @ManyToOne
-    private User user;
-
     @Column
-    private String hotel;
+    private String name;
 
-    @Column(length = 32)
-    private String hotelRef;
+    @OneToMany(mappedBy = "hotel")
+    private List<Room> rooms;
 
-    @Column(length = 10)
-    private String room;
-
-    private Date start;
-
-    private Date finish;
-
-    private Status status;
+    @OneToMany(mappedBy = "hotel")
+    private List<Reservation> reservations;
 }

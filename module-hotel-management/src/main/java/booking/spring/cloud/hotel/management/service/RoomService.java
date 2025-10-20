@@ -1,12 +1,12 @@
 package booking.spring.cloud.hotel.management.service;
 
+import booking.spring.cloud.core.model.dto.ReservationDto;
+import booking.spring.cloud.core.model.dto.RoomDto;
 import booking.spring.cloud.hotel.management.mapper.ReservationMapper;
 import booking.spring.cloud.hotel.management.mapper.RoomMapper;
-import booking.spring.cloud.hotel.management.model.dto.ReservationDto;
-import booking.spring.cloud.hotel.management.model.dto.RoomDto;
-import booking.spring.cloud.hotel.management.model.entities.Hotel;
-import booking.spring.cloud.hotel.management.model.entities.Reservation;
-import booking.spring.cloud.hotel.management.model.entities.Room;
+import booking.spring.cloud.hotel.management.entities.Hotel;
+import booking.spring.cloud.hotel.management.entities.Reservation;
+import booking.spring.cloud.hotel.management.entities.Room;
 import booking.spring.cloud.hotel.management.repository.HotelRepository;
 import booking.spring.cloud.hotel.management.repository.ReservationRepository;
 import booking.spring.cloud.hotel.management.repository.RoomRepository;

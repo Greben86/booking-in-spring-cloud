@@ -1,6 +1,6 @@
 package booking.spring.cloud.booking.clients;
 
-import booking.spring.cloud.booking.model.dto.RoomDto;
+import booking.spring.cloud.core.model.dto.RoomDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.PathVariable;

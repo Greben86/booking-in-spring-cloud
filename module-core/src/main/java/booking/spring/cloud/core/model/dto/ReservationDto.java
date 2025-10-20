@@ -1,4 +1,4 @@
-package booking.spring.cloud.hotel.management.model.dto;
+package booking.spring.cloud.core.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;

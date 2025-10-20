@@ -1,8 +1,8 @@
 package booking.spring.cloud.booking.mapper;
 
-import booking.spring.cloud.booking.model.dto.UserRequest;
-import booking.spring.cloud.booking.model.dto.UserResponse;
-import booking.spring.cloud.booking.model.entities.User;
+import booking.spring.cloud.core.model.dto.UserRequest;
+import booking.spring.cloud.core.model.dto.UserResponse;
+import booking.spring.cloud.booking.entities.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;

@@ -1,4 +1,4 @@
-package booking.spring.cloud.booking.model.entities;
+package booking.spring.cloud.core.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

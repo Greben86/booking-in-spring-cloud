@@ -14,11 +14,10 @@ spring:
             - id: module-booking
               uri: http://module-booking:8081
               predicates:
-                - Path=/api/users,/api/users/user,/api/users/user/{id},/registration
+                - Path=/api/auth/sign/up,/api/auth/sign/in,/api/users,/api/users/user,/api/users/user/{id},/api/bookings,/api/bookings/booking,/api/bookings/booking/{id}
             - id: module-hotel-management
               uri: http://module-hotel-management:8082
               predicates:
                 - Path=/users,/users/{id},/hotels,/hotels/{id}
-
-#          filters:
-#            - JwtAuthFilter
+              filters:
+                - JwtAuthFilter

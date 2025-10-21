@@ -18,35 +18,44 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookingService {
 
+    private final UserService userService;
     private final BookingRepository repository;
     private final BookingMapper mapper;
     private final HotelManagementClient httpClient;
 
     public List<BookingResponse> getAll() {
         System.out.println(httpClient.getRecommend(1L, LocalDate.now()));
-        return repository.findAll().stream()
+        final var user = userService.getCurrentUser();
+        return repository.findByUser(user).stream()
                 .map(mapper::entityToDto)
                 .toList();
     }
 
     public BookingResponse getById(Long id) {
-        return repository.findById(id)
+        final var user = userService.getCurrentUser();
+        return repository.findByIdAndUser(id, user)
                 .map(mapper::entityToDto)
                 .orElse(null);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public BookingResponse saveBooking(BookingRequest booking) {
-
         var entity = mapper.dtoToEntity(booking);
+        entity.setUser(userService.getCurrentUser());
         entity = repository.save(entity);
         return mapper.entityToDto(entity);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean deleteBooking(Long id) {
-        if (repository.findById(id).isEmpty()) {
+        final var booking = repository.findById(id);
+        if (booking.isEmpty()) {
             return false;
+        }
+
+        final var user = userService.getCurrentUser();
+        if (!user.equals(booking.get().getUser())) {
+            throw new IllegalStateException("Удалить можно только свое бронирование");
         }
 
         repository.deleteById(id);

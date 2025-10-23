@@ -5,6 +5,7 @@ import booking.spring.cloud.booking.mapper.BookingMapper;
 import booking.spring.cloud.booking.repository.BookingRepository;
 import booking.spring.cloud.core.model.dto.BookingRequest;
 import booking.spring.cloud.core.model.dto.BookingResponse;
+import booking.spring.cloud.core.model.dto.Status;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -43,6 +44,18 @@ public class BookingService {
         var entity = mapper.dtoToEntity(booking);
         entity.setUser(userService.getCurrentUser());
         entity = repository.save(entity);
+
+        final var hotel = httpClient.getHotels().stream()
+                .filter(h -> h.name().equals(booking.hotel()))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("Отель не найден"));
+
+        if (booking.start().datesUntil(booking.finish()).allMatch(date ->
+                httpClient.confirmAvailability(hotel.id(), date).isPresent())) {
+            entity.setStatus(Status.CONFIRMED);
+            entity = repository.save(entity);
+        }
+
         return mapper.entityToDto(entity);
     }
 

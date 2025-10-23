@@ -11,7 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -36,9 +36,9 @@ public class Booking {
     @Column(length = 10)
     private String room;
 
-    private Date start;
+    private LocalDate start;
 
-    private Date finish;
+    private LocalDate finish;
 
     private Status status;
 }

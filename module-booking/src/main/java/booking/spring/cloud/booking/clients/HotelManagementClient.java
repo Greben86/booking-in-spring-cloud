@@ -16,6 +16,9 @@ import java.util.Optional;
 @FeignClient(name = "MODULE-HOTEL-MANAGEMENT", configuration = JwtAuthClientConfig.class)
 public interface HotelManagementClient {
 
+    @GetMapping("/api/hotels")
+    List<HotelResponse> getHotels();
+
     @GetMapping("/api/hotels/hotel/{id}")
     Optional<HotelResponse> getHotel(@PathVariable("id") Long id);
 

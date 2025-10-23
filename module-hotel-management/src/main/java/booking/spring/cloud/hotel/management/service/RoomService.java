@@ -109,6 +109,6 @@ public class RoomService {
     private boolean checkAvailableByDate(Room room, LocalDate date) {
         return room.getReservations().stream()
                 .map(Reservation::getDate)
-                .anyMatch(date::isEqual);
+                .noneMatch(date::isEqual);
     }
 }

@@ -1,20 +1,22 @@
-package booking.spring.cloud.booking.configuration;
+package booking.spring.cloud.hotel.management.configuration;
 
-import booking.spring.cloud.booking.service.JwtService;
-import booking.spring.cloud.booking.service.UserService;
+import booking.spring.cloud.hotel.management.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import static booking.spring.cloud.core.model.utils.Constants.AUTH_BEARER_PREFIX;
 import static booking.spring.cloud.core.model.utils.Constants.AUTH_HEADER_NAME;
@@ -24,7 +26,6 @@ import static booking.spring.cloud.core.model.utils.Constants.AUTH_HEADER_NAME;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserService userService;
 
     @Override
     protected void doFilterInternal(
@@ -34,33 +35,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         // Получаем токен из заголовка
-        var authHeader = request.getHeader(AUTH_HEADER_NAME);
+        final var authHeader = request.getHeader(AUTH_HEADER_NAME);
         if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, AUTH_BEARER_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // Обрезаем префикс и получаем имя пользователя из токена
-        var jwt = authHeader.substring(AUTH_BEARER_PREFIX.length());
-        var username = jwtService.extractUserName(jwt);
+        final var jwt = authHeader.substring(AUTH_BEARER_PREFIX.length());
+        final var username = jwtService.extractUserName(jwt);
 
         if (StringUtils.isNotEmpty(username)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
-            var userDetails = userService
-                    .userDetailsService()
-                    .loadUserByUsername(username);
-
             // Если токен валиден, то аутентифицируем пользователя
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                var context = SecurityContextHolder.createEmptyContext();
+            if (!jwtService.isTokenExpired(jwt)) {
+                final var context = SecurityContextHolder.createEmptyContext();
 
-                var authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
+                final var authToken = new UsernamePasswordAuthenticationToken(
+                        username,
                         null,
-                        userDetails.getAuthorities()
+                        Collections.singleton(jwtService.extractUserRole(jwt))
                 );
 
-                authToken.setDetails(authHeader);
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 context.setAuthentication(authToken);
                 SecurityContextHolder.setContext(context);
             }

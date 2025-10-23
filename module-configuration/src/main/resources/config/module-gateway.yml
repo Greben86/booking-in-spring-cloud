@@ -18,6 +18,4 @@ spring:
             - id: module-hotel-management
               uri: http://module-hotel-management:8082
               predicates:
-                - Path=/users,/users/{id},/hotels,/hotels/{id}
-              filters:
-                - JwtAuthFilter
+                - Path=/api/hotels,/api/hotels/hotel,/api/hotels/hotel/{id},/api/rooms,/api/rooms/room,/api/rooms/room/{id}

@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static booking.spring.cloud.core.model.utils.Constants.AUTH_CLAIMS_LOGIN;
+import static booking.spring.cloud.core.model.utils.Constants.AUTH_CLAIMS_ROLE;
+
 /**
  * Сервис для JWT
  */
@@ -24,12 +27,12 @@ import java.util.function.Function;
 public class JwtService {
 
     // Уникальный ключ для генерации токена
-    @Value("${security.token.signing.key:EXAMPLE}")
+    @Value("${security.token.signing.key}")
     private String jwtSigningKey;
 
     // Время жизни токена в миллисекундах
-    @Value("${security.token.expiration.milliseconds:6000000}")
-    private int jwtExpirationMillis;
+    @Value("${security.token.expiration.minutes}")
+    private int jwtExpirationMinutes;
 
     /**
      * Извлечение имени пользователя из токена
@@ -50,9 +53,8 @@ public class JwtService {
     public String generateToken(UserDetails userDetails) {
         var claims = new HashMap<String, Object>();
         if (userDetails instanceof User customUserDetails) {
-            claims.put("id", customUserDetails.getId());
-            claims.put("login", customUserDetails.getUsername());
-            claims.put("role", customUserDetails.getRole());
+            claims.put(AUTH_CLAIMS_LOGIN, customUserDetails.getUsername());
+            claims.put(AUTH_CLAIMS_ROLE, customUserDetails.getRole());
         }
         return generateToken(claims, userDetails);
     }
@@ -95,7 +97,7 @@ public class JwtService {
                 .claims().add(extraClaims).and()
                 .subject(userDetails.getUsername())
                 .issuedAt(currentTime)
-                .expiration(DateUtils.addMilliseconds(currentTime, jwtExpirationMillis))
+                .expiration(DateUtils.addMinutes(currentTime, jwtExpirationMinutes))
                 .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
     }

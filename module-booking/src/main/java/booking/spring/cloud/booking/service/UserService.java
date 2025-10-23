@@ -34,13 +34,14 @@ public class UserService {
                 .orElse(null);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public User register(final UserRequest user, final String encodedPassword) {
         if (repository.findByUsername(user.username()).isPresent()) {
             throw new IllegalStateException("Такой уже есть");
         }
 
         var entity = mapper.dtoToEntity(user);
+        entity.setPassword(encodedPassword);
         return repository.save(entity);
     }
 

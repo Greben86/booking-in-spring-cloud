@@ -4,6 +4,7 @@ import booking.spring.cloud.core.model.dto.ReservationDto;
 import booking.spring.cloud.core.model.dto.RoomDto;
 import booking.spring.cloud.hotel.management.service.RoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -56,14 +57,16 @@ public class RoomController {
     @GetMapping("/{id}/confirm-availability")
     @ResponseStatus(HttpStatus.OK)
     public ReservationDto confirmAvailability(@PathVariable Long id,
-                                              @RequestParam(name = "date") LocalDate date) {
+                                              @RequestParam(name = "date")
+                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return service.confirmAvailability(id, date);
     }
 
     @GetMapping("/{id}/release")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Void> release(@PathVariable Long id,
-                                        @RequestParam(name = "date") LocalDate date) {
+                                        @RequestParam(name = "date")
+                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         if (service.release(id, date)) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {

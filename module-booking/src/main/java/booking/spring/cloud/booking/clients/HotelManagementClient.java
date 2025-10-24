@@ -2,7 +2,7 @@ package booking.spring.cloud.booking.clients;
 
 import booking.spring.cloud.core.model.dto.HotelResponse;
 import booking.spring.cloud.core.model.dto.ReservationDto;
-import booking.spring.cloud.core.model.dto.RoomDto;
+import booking.spring.cloud.core.model.dto.RoomResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,13 +22,20 @@ public interface HotelManagementClient {
     @GetMapping("/api/hotels/hotel/{id}")
     Optional<HotelResponse> getHotel(@PathVariable("id") Long id);
 
+    @GetMapping("/api/hotels/hotel/find")
+    Optional<HotelResponse> findByName(@RequestParam(name = "name") String name);
+
+    @GetMapping("/api/hotels/hotel/{id}/room")
+    Optional<RoomResponse> findRoomByNumber(@PathVariable Long id,
+                                            @RequestParam(name = "number") String number);
+
     @GetMapping("/api/hotels/hotel/{hotelId}/recommend")
-    List<RoomDto> getRecommend(@PathVariable("hotelId") Long hotelId,
-                               @RequestParam(name = "date")
+    List<RoomResponse> getRecommend(@PathVariable("hotelId") Long hotelId,
+                                    @RequestParam(name = "date")
                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date);
 
     @GetMapping("/api/rooms/room/{id}")
-    Optional<RoomDto> getRoom(@PathVariable("id") Long id);
+    Optional<RoomResponse> getRoom(@PathVariable("id") Long id);
 
     @GetMapping("/api/rooms/{roomId}/confirm-availability")
     Optional<ReservationDto> confirmAvailability(@PathVariable("roomId") Long roomId,

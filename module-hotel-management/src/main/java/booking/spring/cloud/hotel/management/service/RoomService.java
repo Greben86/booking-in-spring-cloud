@@ -1,7 +1,8 @@
 package booking.spring.cloud.hotel.management.service;
 
 import booking.spring.cloud.core.model.dto.ReservationDto;
-import booking.spring.cloud.core.model.dto.RoomDto;
+import booking.spring.cloud.core.model.dto.RoomRequest;
+import booking.spring.cloud.core.model.dto.RoomResponse;
 import booking.spring.cloud.hotel.management.mapper.ReservationMapper;
 import booking.spring.cloud.hotel.management.mapper.RoomMapper;
 import booking.spring.cloud.hotel.management.entities.Hotel;
@@ -30,20 +31,28 @@ public class RoomService {
     private final RoomMapper roomMapper;
     private final ReservationMapper reservationMapper;
 
-    public List<RoomDto> getAll() {
+    public List<RoomResponse> getAll() {
         return roomRepository.findAll().stream()
                 .map(roomMapper::entityToDto)
                 .toList();
     }
 
-    public RoomDto getById(final Long id) {
+    public RoomResponse getById(final Long id) {
         return roomRepository.findById(id)
                 .map(roomMapper::entityToDto)
                 .orElse(null);
     }
 
+    public RoomResponse findByHotelAndNumber(Long hotelId, final String number) {
+        final var hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new IllegalArgumentException("Нет такого отеля"));
+        return roomRepository.findByHotelAndNumber(hotel, number)
+                .map(roomMapper::entityToDto)
+                .orElse(null);
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public RoomDto save(RoomDto dto) {
+    public RoomResponse save(RoomRequest dto) {
         var entity = roomMapper.dtoToEntity(dto);
         entity = roomRepository.save(entity);
         return roomMapper.entityToDto(entity);
@@ -60,7 +69,7 @@ public class RoomService {
         return true;
     }
 
-    public List<RoomDto> getRecommend(Long hotelId, LocalDate date) {
+    public List<RoomResponse> getRecommend(Long hotelId, LocalDate date) {
         return hotelRepository.findById(hotelId)
                 .map(Hotel::getRooms)
                 .orElseThrow(NullPointerException::new).stream()

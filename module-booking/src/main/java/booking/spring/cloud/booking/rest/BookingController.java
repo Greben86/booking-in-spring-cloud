@@ -6,6 +6,7 @@ import booking.spring.cloud.core.model.dto.BookingResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("api/bookings")
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public class BookingController {
     @GetMapping({"", "/"})
     @ResponseStatus(HttpStatus.OK)
     public List<BookingResponse> getAll() {
+        log.info("Посмотреть все бронирования пользователя");
         return bookingService.getAll();
     }
 
@@ -38,6 +41,7 @@ public class BookingController {
     @GetMapping("/booking/{id}")
     @ResponseStatus(HttpStatus.OK)
     public BookingResponse getById(@PathVariable Long id) {
+        log.info("Запрос бронирования по ID");
         return bookingService.getById(id);
     }
 
@@ -45,12 +49,14 @@ public class BookingController {
     @PostMapping("/booking")
     @ResponseStatus(HttpStatus.OK)
     public BookingResponse saveBooking(@RequestBody BookingRequest booking) {
+        log.info("Регистрация бронирования");
         return bookingService.saveBooking(booking);
     }
 
     @Operation(summary = "Удалить бронирование")
     @DeleteMapping("/booking/{id}")
     public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
+        log.info("Удаление бронирования");
         if (bookingService.deleteBooking(id)) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {

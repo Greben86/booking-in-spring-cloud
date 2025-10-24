@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@Schema(description = "Апартаменты отеля")
-public record RoomDto(
+@Schema(description = "Запрос апартаментов отеля")
+public record RoomRequest(
         @Schema(description = "Идентификатор отеля", example = "1")
         @NotBlank
         long hotelId,

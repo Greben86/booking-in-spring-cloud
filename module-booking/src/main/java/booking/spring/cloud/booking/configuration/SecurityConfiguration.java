@@ -22,8 +22,6 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
 
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity

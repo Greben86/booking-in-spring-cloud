@@ -31,6 +31,12 @@ public class HotelService {
                 .orElse(null);
     }
 
+    public HotelResponse findByName(final String name) {
+        return repository.findByName(name)
+                .map(mapper::entityToDto)
+                .orElse(null);
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public HotelResponse save(HotelRequest dto) {
         var entity = mapper.dtoToEntity(dto);

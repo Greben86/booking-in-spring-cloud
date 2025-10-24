@@ -45,6 +45,31 @@ services:
     networks:
       - booking-network
 
+  hotel_management:
+    container_name: module-hotel-management
+    build:
+      dockerfile_inline: |
+        FROM eclipse-temurin:21-jre-alpine-3.22
+        COPY ./module-hotel-management/target/*.jar app.jar
+        RUN apk add --no-cache curl
+        EXPOSE 8082
+        ENTRYPOINT ["java", "-jar", "app.jar"]
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://module-hotel-management:8082/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      configuration:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+    networks:
+      - booking-network
+
   booking:
     container_name: module-booking
     build:
@@ -68,30 +93,7 @@ services:
         condition: service_healthy
       discovery:
         condition: service_healthy
-    networks:
-      - booking-network
-
-  hotel_management:
-    container_name: module-hotel-management
-    build:
-      dockerfile_inline: |
-        FROM eclipse-temurin:21-jre-alpine-3.22
-        COPY ./module-hotel-management/target/*.jar app.jar
-        RUN apk add --no-cache curl
-        EXPOSE 8082
-        ENTRYPOINT ["java", "-jar", "app.jar"]
-    ports:
-      - "8082:8082"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://module-hotel-management:8082/actuator/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    depends_on:
-      configuration:
-        condition: service_healthy
-      discovery:
+      hotel_management:
         condition: service_healthy
     networks:
       - booking-network

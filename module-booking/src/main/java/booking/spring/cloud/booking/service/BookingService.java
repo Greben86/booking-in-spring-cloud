@@ -45,30 +45,40 @@ public class BookingService {
         entity.setUser(userService.getCurrentUser());
         entity = repository.save(entity);
 
-        final var hotel = httpClient.getHotels().stream()
-                .filter(h -> h.name().equals(booking.hotel()))
-                .findAny()
+        final var hotel = httpClient.findByName(booking.hotel())
                 .orElseThrow(() -> new IllegalArgumentException("Отель не найден"));
 
-        if (booking.start().datesUntil(booking.finish()).allMatch(date ->
-                httpClient.confirmAvailability(hotel.id(), date).isPresent())) {
-            entity.setStatus(Status.CONFIRMED);
-            entity = repository.save(entity);
-        }
+        final var room = httpClient.findRoomByNumber(hotel.id(), booking.room())
+                .orElseThrow(() -> new IllegalArgumentException("Номер не найден"));
+
+        final var success = booking.start().datesUntil(booking.finish())
+                .allMatch(date -> httpClient.confirmAvailability(room.id(), date).isPresent());
+
+        entity.setStatus(success ? Status.CONFIRMED : Status.CANCELLED);
+        entity = repository.save(entity);
 
         return mapper.entityToDto(entity);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean deleteBooking(Long id) {
-        final var booking = repository.findById(id);
-        if (booking.isEmpty()) {
-            return false;
-        }
+        final var booking = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Бронирование не найдено"));
 
         final var user = userService.getCurrentUser();
-        if (!user.equals(booking.get().getUser())) {
+        if (!user.equals(booking.getUser())) {
             throw new IllegalStateException("Удалить можно только свое бронирование");
+        }
+
+        final var hotel = httpClient.findByName(booking.getHotel())
+                .orElseThrow(() -> new IllegalArgumentException("Отель не найден"));
+
+        final var room = httpClient.findRoomByNumber(hotel.id(), booking.getRoom())
+                .orElseThrow(() -> new IllegalArgumentException("Номер не найден"));
+
+        if (Status.CONFIRMED.equals(booking.getStatus())) {
+            booking.getStart().datesUntil(booking.getFinish())
+                    .forEach(date -> httpClient.releaseRoom(room.id(), date));
         }
 
         repository.deleteById(id);

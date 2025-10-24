@@ -14,7 +14,7 @@ public record BookingRequest(
         @Size(min = 1, max = 255, message = "Название отеля должно содержать от 1 до 255 символов")
         @NotBlank(message = "Название отеля не может быть пустыми")
         String hotel,
-        @Schema(description = "Номер апартаментов", example = "my_1secret1_password")
+        @Schema(description = "Номер апартаментов", example = "1874")
         @Size(min = 1, max = 10, message = "Номер апартаментов должен содержать от 1 до 255 символов")
         @NotBlank(message = "Номер апартаментов не может быть пустыми")
         String room,

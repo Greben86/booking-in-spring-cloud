@@ -5,6 +5,7 @@ import booking.spring.cloud.booking.mapper.UserMapper;
 import booking.spring.cloud.booking.repository.UserRepository;
 import booking.spring.cloud.core.model.dto.UserRequest;
 import booking.spring.cloud.core.model.dto.UserResponse;
+import booking.spring.cloud.core.model.dto.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -90,5 +91,18 @@ public class UserService {
                 .getName();
 
         return getByUsername(username);
+    }
+
+    /**
+     * Выдача прав администратора пользователю
+     *
+     * @param id идентификатор пользователя
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void setAdmin(final Long id) {
+        final var user = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+        user.setRole(UserRole.ROLE_ADMIN);
+        repository.save(user);
     }
 }

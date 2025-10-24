@@ -5,6 +5,7 @@ import booking.spring.cloud.core.model.dto.BookingRequest;
 import booking.spring.cloud.core.model.dto.BookingResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -48,7 +49,7 @@ public class BookingController {
     @Operation(summary = "Зарегистрировать бронирование")
     @PostMapping("/booking")
     @ResponseStatus(HttpStatus.OK)
-    public BookingResponse saveBooking(@RequestBody BookingRequest booking) {
+    public BookingResponse saveBooking(@RequestBody @Valid BookingRequest booking) {
         log.info("Регистрация бронирования");
         return bookingService.saveBooking(booking);
     }

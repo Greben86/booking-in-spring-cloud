@@ -7,11 +7,13 @@ import booking.spring.cloud.hotel.management.service.HotelService;
 import booking.spring.cloud.hotel.management.service.RoomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,25 +61,27 @@ public class HotelController {
         return service.findByName(name);
     }
 
-    @Operation(summary = "Поиск номера по названию")
+    @Operation(summary = "Поиск апартаментов по номеру")
     @GetMapping("/hotel/{id}/room")
     @ResponseStatus(HttpStatus.OK)
     public RoomResponse findRoomByNumber(@PathVariable Long id,
                                          @RequestParam(name = "number") String number) {
-        log.info("Поиск номера отеля по названию");
+        log.info("Поиск апартаментов по номеру");
         return roomService.findByHotelAndNumber(id, number);
     }
 
     @Operation(summary = "Сохранить отель")
     @PostMapping("/hotel")
     @ResponseStatus(HttpStatus.OK)
-    public HotelResponse save(@RequestBody HotelRequest booking) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public HotelResponse save(@RequestBody @Valid HotelRequest booking) {
         log.info("Сохранение отеля");
         return service.save(booking);
     }
 
     @Operation(summary = "Удалить отель")
     @DeleteMapping("/hotel/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         log.info("Удаление отеля");
         if (service.delete(id)) {
@@ -92,7 +96,7 @@ public class HotelController {
     @ResponseStatus(HttpStatus.OK)
     public List<RoomResponse> getRecommend(@PathVariable Long id,
                                            @RequestParam(name = "date")
-                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+                                           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         log.info("Список свободных номеров на дату");
         return roomService.getRecommend(id, date);
     }

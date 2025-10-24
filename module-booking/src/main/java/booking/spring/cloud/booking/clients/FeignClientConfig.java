@@ -10,7 +10,7 @@ import static booking.spring.cloud.core.model.utils.Constants.AUTH_HEADER_NAME;
 
 @Slf4j
 @Configuration
-public class JwtAuthClientConfig {
+public class FeignClientConfig {
 
     @Bean
     public RequestInterceptor authRequestInterceptor() {

@@ -28,6 +28,9 @@ public class Room {
     private String number;
 
     @Column
+    private boolean available;
+
+    @Column
     private int times_booked;
 
     @ManyToOne

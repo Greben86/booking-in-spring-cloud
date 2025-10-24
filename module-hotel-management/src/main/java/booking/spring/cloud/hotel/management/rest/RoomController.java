@@ -6,11 +6,13 @@ import booking.spring.cloud.core.model.dto.RoomResponse;
 import booking.spring.cloud.hotel.management.service.RoomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,13 +54,15 @@ public class RoomController {
     @Operation(summary = "Сохранение апартаментов")
     @PostMapping("/room")
     @ResponseStatus(HttpStatus.OK)
-    public RoomResponse save(@RequestBody RoomRequest room) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public RoomResponse save(@RequestBody @Valid RoomRequest room) {
         log.info("Сохранение апартаментов");
         return service.save(room);
     }
 
     @Operation(summary = "Удаление апартаментов")
     @DeleteMapping("/room/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         log.info("Удаление апартаментов");
         if (service.delete(id)) {
@@ -66,6 +70,24 @@ public class RoomController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    @Operation(summary = "Установка доступности апартаментов")
+    @GetMapping("/room/{id}/set-available")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('ADMIN')")
+    public void setAvailable(@PathVariable Long id) {
+        log.info("Установлена доступность апартаментов");
+        service.setAvailable(id);
+    }
+
+    @Operation(summary = "Отмена доступности апартаментов")
+    @GetMapping("/room/{id}/unset-available")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('ADMIN')")
+    public void unsetAvailable(@PathVariable Long id) {
+        log.info("Отменена доступность апартаментов");
+        service.unsetAvailable(id);
     }
 
     @GetMapping("/{id}/confirm-availability")

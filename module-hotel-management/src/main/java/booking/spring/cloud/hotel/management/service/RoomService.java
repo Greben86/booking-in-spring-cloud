@@ -87,6 +87,10 @@ public class RoomService {
             throw new IllegalStateException("Дата занята!");
         }
 
+        if (!room.isAvailable()) {
+            throw new IllegalStateException("Апартаменты не доступны!");
+        }
+
         final var reservation = new Reservation();
         reservation.setRoom(room);
         reservation.setHotel(room.getHotel());
@@ -119,5 +123,23 @@ public class RoomService {
         return room.getReservations().stream()
                 .map(Reservation::getDate)
                 .noneMatch(date::isEqual);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void setAvailable(Long id) {
+        final var room = roomRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Нет таких апартаментов!"));
+
+        room.setAvailable(true);
+        roomRepository.save(room);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void unsetAvailable(Long id) {
+        final var room = roomRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Нет таких апартаментов!"));
+
+        room.setAvailable(false);
+        roomRepository.save(room);
     }
 }

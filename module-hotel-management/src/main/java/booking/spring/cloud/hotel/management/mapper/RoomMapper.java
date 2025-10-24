@@ -15,5 +15,7 @@ public interface RoomMapper {
     @Mapping(target = "hotelId", expression = "java(room.getHotel().getId())")
     RoomResponse entityToDto(Room room);
 
+    @Mapping(target = "available", expression = "java(Boolean.TRUE)")
+    @Mapping(target = "times_booked", constant = "0")
     Room dtoToEntity(RoomRequest dto);
 }

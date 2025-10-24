@@ -7,13 +7,16 @@ import booking.spring.cloud.core.model.dto.BookingRequest;
 import booking.spring.cloud.core.model.dto.BookingResponse;
 import booking.spring.cloud.core.model.dto.Status;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -25,7 +28,6 @@ public class BookingService {
     private final HotelManagementClient httpClient;
 
     public List<BookingResponse> getAll() {
-        System.out.println(httpClient.getRecommend(1L, LocalDate.now()));
         final var user = userService.getCurrentUser();
         return repository.findByUser(user).stream()
                 .map(mapper::entityToDto)
@@ -45,14 +47,14 @@ public class BookingService {
         entity.setUser(userService.getCurrentUser());
         entity = repository.save(entity);
 
-        final var hotel = httpClient.findByName(booking.hotel())
+        final var hotel = readBody(httpClient.findByName(booking.hotel()))
                 .orElseThrow(() -> new IllegalArgumentException("Отель не найден"));
 
-        final var room = httpClient.findRoomByNumber(hotel.id(), booking.room())
+        final var room = readBody(httpClient.findRoomByNumber(hotel.id(), booking.room()))
                 .orElseThrow(() -> new IllegalArgumentException("Номер не найден"));
 
         final var success = booking.start().datesUntil(booking.finish())
-                .allMatch(date -> httpClient.confirmAvailability(room.id(), date).isPresent());
+                .allMatch(date -> readBody(httpClient.confirmAvailability(room.id(), date)).isPresent());
 
         entity.setStatus(success ? Status.CONFIRMED : Status.CANCELLED);
         entity = repository.save(entity);
@@ -70,10 +72,10 @@ public class BookingService {
             throw new IllegalStateException("Удалить можно только свое бронирование");
         }
 
-        final var hotel = httpClient.findByName(booking.getHotel())
+        final var hotel = readBody(httpClient.findByName(booking.getHotel()))
                 .orElseThrow(() -> new IllegalArgumentException("Отель не найден"));
 
-        final var room = httpClient.findRoomByNumber(hotel.id(), booking.getRoom())
+        final var room = readBody(httpClient.findRoomByNumber(hotel.id(), booking.getRoom()))
                 .orElseThrow(() -> new IllegalArgumentException("Номер не найден"));
 
         if (Status.CONFIRMED.equals(booking.getStatus())) {
@@ -84,5 +86,14 @@ public class BookingService {
         repository.deleteById(id);
 
         return true;
+    }
+
+    private <T> Optional<T> readBody(ResponseEntity<T> response) {
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            log.error("Status code={}, body={}", response.getStatusCode().value(), response.getBody());
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(response.getBody());
     }
 }

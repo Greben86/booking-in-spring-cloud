@@ -15,5 +15,11 @@ public record RoomResponse(
         @Schema(description = "Номер апартаментов отеля", example = "313")
         @Size(min = 1, max = 10, message = "Номер апартаментов отеля должно содержать от 1 до 10 символов")
         @NotBlank(message = "Номер апартаментов отеля не может быть пустыми")
-        String number) {
+        String number,
+        @Schema(description = "Доступность апартаментов", example = "true")
+        @NotBlank
+        boolean available,
+        @Schema(description = "Количество бронирований апартаментов", example = "10")
+        @NotBlank
+        int times_booked) {
 }

@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -30,9 +31,6 @@ public class Booking {
     @Column
     private String hotel;
 
-    @Column(length = 32)
-    private String hotelRef;
-
     @Column(length = 10)
     private String room;
 
@@ -41,4 +39,6 @@ public class Booking {
     private LocalDate finish;
 
     private Status status;
+
+    private LocalDateTime create_time;
 }

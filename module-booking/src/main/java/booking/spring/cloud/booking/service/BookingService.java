@@ -26,6 +26,7 @@ public class BookingService {
     private final BookingRepository repository;
     private final BookingMapper mapper;
     private final HotelManagementClient httpClient;
+    private final BookingRangeChecker bookingRangeChecker;
 
     public List<BookingResponse> getAll() {
         final var user = userService.getCurrentUser();
@@ -42,7 +43,10 @@ public class BookingService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public BookingResponse saveBooking(BookingRequest booking) {
+    public BookingResponse addBooking(BookingRequest booking) {
+        if (booking.start().isAfter(booking.finish()))
+            throw new IllegalArgumentException("Начало периода бронирования должно быть раньше окончания");
+
         var entity = mapper.dtoToEntity(booking);
         entity.setUser(userService.getCurrentUser());
         entity = repository.save(entity);
@@ -51,7 +55,15 @@ public class BookingService {
                 .orElseThrow(() -> new IllegalArgumentException("Отель не найден"));
 
         final var room = readBody(httpClient.findRoomByNumber(hotel.id(), booking.room()))
-                .orElseThrow(() -> new IllegalArgumentException("Номер не найден"));
+                .orElseThrow(() -> new IllegalArgumentException("Апартаменты не найдены"));
+
+        if (!room.available()) {
+            throw new IllegalArgumentException("Апартаменты не доступны");
+        }
+
+        if (bookingRangeChecker.isOverlapping(entity)) {
+
+        }
 
         final var success = booking.start().datesUntil(booking.finish())
                 .allMatch(date -> readBody(httpClient.confirmAvailability(room.id(), date)).isPresent());
@@ -63,7 +75,7 @@ public class BookingService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public boolean deleteBooking(Long id) {
+    public boolean releaseBooking(Long id) {
         final var booking = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Бронирование не найдено"));
 

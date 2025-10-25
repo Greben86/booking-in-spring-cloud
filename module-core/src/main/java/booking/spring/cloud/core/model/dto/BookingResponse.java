@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Schema(description = "Бронирование номера отеля")
 public record BookingResponse(
@@ -30,5 +31,8 @@ public record BookingResponse(
         @NotNull(message = "Дата и час окончания бронирования не может быть пустым")
         LocalDate finish,
         @Schema(description = "Статус бронирования", example = "Ожидает")
-        Status status) {
+        Status status,
+        @Schema(description = "Дата и час окончания бронирования", pattern = "dd-MM-yyyy HH:mm:ss")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone="Europe/Moscow")
+        LocalDateTime create_time) {
 }

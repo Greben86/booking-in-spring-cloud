@@ -49,16 +49,16 @@ public class BookingController {
     @Operation(summary = "Зарегистрировать бронирование")
     @PostMapping("/booking")
     @ResponseStatus(HttpStatus.OK)
-    public BookingResponse saveBooking(@RequestBody @Valid BookingRequest booking) {
+    public BookingResponse addBooking(@RequestBody @Valid BookingRequest booking) {
         log.info("Регистрация бронирования");
-        return bookingService.saveBooking(booking);
+        return bookingService.addBooking(booking);
     }
 
     @Operation(summary = "Удалить бронирование")
     @DeleteMapping("/booking/{id}")
-    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
+    public ResponseEntity<Void> releaseBooking(@PathVariable Long id) {
         log.info("Удаление бронирования");
-        if (bookingService.deleteBooking(id)) {
+        if (bookingService.releaseBooking(id)) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

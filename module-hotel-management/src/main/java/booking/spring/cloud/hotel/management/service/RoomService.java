@@ -86,12 +86,12 @@ public class RoomService {
     public ReservationDto confirmAvailability(Long roomId, LocalDate date) {
         final var room = roomRepository.findById(roomId)
                 .orElseThrow(NullPointerException::new);
-        if (!checkAvailableByDate(room, date)) {
-            throw new IllegalStateException("Дата занята!");
-        }
-
         if (!room.isAvailable()) {
             throw new IllegalStateException("Апартаменты не доступны!");
+        }
+
+        if (!checkAvailableByDate(room, date)) {
+            throw new IllegalStateException("Дата занята!");
         }
 
         final var reservation = new Reservation();

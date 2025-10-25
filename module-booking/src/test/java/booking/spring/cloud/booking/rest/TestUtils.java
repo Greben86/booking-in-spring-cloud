@@ -51,8 +51,8 @@ public final class TestUtils {
     private static String getTokenFromAnswer(final byte[] answer) {
         final var str = new String(answer, StandardCharsets.UTF_8);
         final var objectMapper = new ObjectMapper();
-        try (final var response = objectMapper.createParser(str)) {
-            final var jwt = response.readValueAs(JwtAuthenticationResponse.class);
+        try (final var parser = objectMapper.createParser(str)) {
+            final var jwt = parser.readValueAs(JwtAuthenticationResponse.class);
             return jwt.token();
         }
     }

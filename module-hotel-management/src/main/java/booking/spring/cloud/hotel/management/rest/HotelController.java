@@ -2,15 +2,12 @@ package booking.spring.cloud.hotel.management.rest;
 
 import booking.spring.cloud.core.model.dto.HotelRequest;
 import booking.spring.cloud.core.model.dto.HotelResponse;
-import booking.spring.cloud.core.model.dto.RoomResponse;
 import booking.spring.cloud.hotel.management.service.HotelService;
-import booking.spring.cloud.hotel.management.service.RoomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -35,7 +31,6 @@ import java.util.List;
 public class HotelController {
 
     private final HotelService service;
-    private final RoomService roomService;
 
     @Operation(summary = "Список отелей")
     @GetMapping({"", "/"})
@@ -61,15 +56,6 @@ public class HotelController {
         return service.findByName(name);
     }
 
-    @Operation(summary = "Поиск апартаментов по номеру")
-    @GetMapping("/hotel/{id}/room")
-    @ResponseStatus(HttpStatus.OK)
-    public RoomResponse findRoomByNumber(@PathVariable Long id,
-                                         @RequestParam(name = "number") String number) {
-        log.info("Поиск апартаментов по номеру");
-        return roomService.findByHotelAndNumber(id, number);
-    }
-
     @Operation(summary = "Сохранить отель")
     @PostMapping("/hotel")
     @ResponseStatus(HttpStatus.OK)
@@ -89,15 +75,5 @@ public class HotelController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-    }
-
-    @Operation(summary = "Получить список свободных номеров на дату")
-    @GetMapping("/hotel/{id}/recommend")
-    @ResponseStatus(HttpStatus.OK)
-    public List<RoomResponse> getRecommend(@PathVariable Long id,
-                                           @RequestParam(name = "date")
-                                           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        log.info("Список свободных номеров на дату");
-        return roomService.getRecommend(id, date);
     }
 }

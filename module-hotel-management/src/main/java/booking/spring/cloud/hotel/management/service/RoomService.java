@@ -53,7 +53,10 @@ public class RoomService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public RoomResponse save(RoomRequest dto) {
+        final var hotel = hotelRepository.findById(dto.hotelId())
+                .orElseThrow(() -> new IllegalArgumentException("Нет такого отеля"));
         var entity = roomMapper.dtoToEntity(dto);
+        entity.setHotel(hotel);
         entity = roomRepository.save(entity);
         return roomMapper.entityToDto(entity);
     }

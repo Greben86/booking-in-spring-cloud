@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,7 +54,7 @@ public class RoomController {
 
     @Operation(summary = "Сохранение апартаментов")
     @PostMapping("/room")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
     public RoomResponse save(@RequestBody @Valid RoomRequest room) {
         log.info("Сохранение апартаментов");
@@ -72,8 +73,27 @@ public class RoomController {
         }
     }
 
+    @Operation(summary = "Поиск апартаментов по номеру")
+    @GetMapping("/find-by-hotel/{hotelId}")
+    @ResponseStatus(HttpStatus.OK)
+    public RoomResponse findRoomByNumber(@PathVariable Long hotelId,
+                                         @RequestParam(name = "number") String number) {
+        log.info("Поиск апартаментов по номеру");
+        return service.findByHotelAndNumber(hotelId, number);
+    }
+
+    @Operation(summary = "Получить список свободных апартаментов на дату")
+    @GetMapping("/room/recommend-by-hotel/{hotelId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<RoomResponse> getRecommend(@PathVariable Long hotelId,
+                                           @RequestParam(name = "date")
+                                           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        log.info("Список свободных апартаментов на дату");
+        return service.getRecommend(hotelId, date);
+    }
+
     @Operation(summary = "Установка доступности апартаментов")
-    @GetMapping("/room/{id}/set-available")
+    @PutMapping("/room/{id}/set-available")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ADMIN')")
     public void setAvailable(@PathVariable Long id) {
@@ -82,7 +102,7 @@ public class RoomController {
     }
 
     @Operation(summary = "Отмена доступности апартаментов")
-    @GetMapping("/room/{id}/unset-available")
+    @PutMapping("/room/{id}/unset-available")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ADMIN')")
     public void unsetAvailable(@PathVariable Long id) {
@@ -90,8 +110,8 @@ public class RoomController {
         service.unsetAvailable(id);
     }
 
-    @GetMapping("/{id}/confirm-availability")
-    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/room/{id}/confirm-availability")
+    @ResponseStatus(HttpStatus.CREATED)
     public ReservationDto confirmAvailability(@PathVariable Long id,
                                               @RequestParam(name = "date")
                                               @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
@@ -99,7 +119,7 @@ public class RoomController {
         return service.confirmAvailability(id, date);
     }
 
-    @GetMapping("/{id}/release")
+    @DeleteMapping("/room/{id}/release")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Void> release(@PathVariable Long id,
                                         @RequestParam(name = "date")

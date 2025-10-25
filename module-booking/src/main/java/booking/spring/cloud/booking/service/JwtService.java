@@ -92,7 +92,7 @@ public class JwtService {
      * @return токен
      */
     private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        Date currentTime = new Date(System.currentTimeMillis());
+        final var currentTime = new Date(System.currentTimeMillis());
         return Jwts.builder()
                 .claims().add(extraClaims).and()
                 .subject(userDetails.getUsername())
@@ -144,9 +144,5 @@ public class JwtService {
     private SecretKey getSigningKey() {
         final var keyBytes = Decoders.BASE64.decode(jwtSigningKey);
         return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    public String getCurrentKey() {
-        return Encoders.BASE64.encode(getSigningKey().getEncoded());
     }
 }

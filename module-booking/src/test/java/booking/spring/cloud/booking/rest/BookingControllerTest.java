@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -26,12 +27,14 @@ import java.time.LocalDate;
 
 import static booking.spring.cloud.core.model.utils.Constants.AUTH_BEARER_PREFIX;
 import static booking.spring.cloud.core.model.utils.Constants.AUTH_HEADER_NAME;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @DisplayName("Тестирование API бронирования")
 class BookingControllerTest {
 
@@ -52,8 +55,15 @@ class BookingControllerTest {
                 ResponseEntity.ok(new ReservationDto(1, 1, "313", LocalDate.now())));
     }
 
-    @SneakyThrows
     @Order(0)
+    @DisplayName("Проверка, что MockMvc существует")
+    @Test
+    void contextLoads() {
+        assertThat(mockMvc).isNotNull();
+    }
+
+    @SneakyThrows
+    @Order(1)
     @DisplayName("Тест добавления брони")
     @Test
     void saveBooking() {
@@ -75,7 +85,7 @@ class BookingControllerTest {
     }
 
     @SneakyThrows
-    @Order(1)
+    @Order(2)
     @DisplayName("Тест просмотра брони")
     @Test
     void getById() {
@@ -96,7 +106,7 @@ class BookingControllerTest {
     }
 
     @SneakyThrows
-    @Order(2)
+    @Order(3)
     @DisplayName("Тест получения всех бронирований пользователя")
     @Test
     void getAll() {
@@ -117,7 +127,7 @@ class BookingControllerTest {
     }
 
     @SneakyThrows
-    @Order(3)
+    @Order(4)
     @DisplayName("Тест удаления брони")
     @Test
     void deleteBooking(){

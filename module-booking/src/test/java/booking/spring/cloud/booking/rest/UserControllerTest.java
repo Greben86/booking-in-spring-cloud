@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -17,18 +18,27 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static booking.spring.cloud.core.model.utils.Constants.AUTH_BEARER_PREFIX;
 import static booking.spring.cloud.core.model.utils.Constants.AUTH_HEADER_NAME;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @DisplayName("Тестирование API пользователей")
 class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @SneakyThrows
     @Order(0)
+    @DisplayName("Проверка, что MockMvc существует")
+    @Test
+    void contextLoads() {
+        assertThat(mockMvc).isNotNull();
+    }
+
+    @SneakyThrows
+    @Order(1)
     @DisplayName("Тест добавления пользователя")
     @Test
     void getById() {
@@ -53,7 +63,7 @@ class UserControllerTest {
     }
 
     @SneakyThrows
-    @Order(1)
+    @Order(2)
     @DisplayName("Тест добавления прав администратора")
     @Test
     void setAdmin() {
@@ -68,7 +78,7 @@ class UserControllerTest {
     }
 
     @SneakyThrows
-    @Order(2)
+    @Order(3)
     @DisplayName("Тест просмотра списка пользователей")
     @Test
     void getAll() {
@@ -86,7 +96,7 @@ class UserControllerTest {
     }
 
     @SneakyThrows
-    @Order(3)
+    @Order(4)
     @DisplayName("Тест удаления пользователя")
     @Test
     void deleteUser() {

@@ -2,10 +2,11 @@ package booking.spring.cloud.booking.rest;
 
 import booking.spring.cloud.booking.clients.HotelManagementClient;
 import booking.spring.cloud.core.model.dto.HotelResponse;
-import booking.spring.cloud.core.model.dto.JwtAuthenticationResponse;
 import booking.spring.cloud.core.model.dto.ReservationDto;
 import booking.spring.cloud.core.model.dto.RoomResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -21,8 +22,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
 import static booking.spring.cloud.core.model.utils.Constants.AUTH_BEARER_PREFIX;
@@ -33,6 +32,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DisplayName("Тестирование API бронирования")
 class BookingControllerTest {
 
     @MockitoBean
@@ -40,26 +40,24 @@ class BookingControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Order(0)
-    @Test
-    void saveBooking() throws Exception {
+    @BeforeEach
+    public void init() {
         when(httpClient.findByName(any())).thenAnswer(invocationOnMock ->
                 ResponseEntity.ok(new HotelResponse(1, "Общага")));
         when(httpClient.findRoomByNumber(any(), any())).thenAnswer(invocationOnMock ->
                 ResponseEntity.ok(new RoomResponse(1, 1, "313", true, 0)));
         when(httpClient.confirmAvailability(any(), any())).thenAnswer(invocationOnMock ->
                 ResponseEntity.ok(new ReservationDto(1, 1, "313", LocalDate.now())));
+        when(httpClient.releaseRoom(any(), any())).thenAnswer(invocationOnMock ->
+                ResponseEntity.ok(new ReservationDto(1, 1, "313", LocalDate.now())));
+    }
 
-        var answerSignUp = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/sign/up")
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"username\":\"Viktor\", \"password\":\"password123\"}")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsByteArray();
-        var token = getTokenFromAnswer(answerSignUp);
+    @SneakyThrows
+    @Order(0)
+    @DisplayName("Тест добавления брони")
+    @Test
+    void saveBooking() {
+        final var token = TestUtils.signUp(mockMvc, "Viktor", "password123");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/bookings/booking")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
@@ -76,19 +74,12 @@ class BookingControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.finish").value("24-10-2025"));
     }
 
+    @SneakyThrows
     @Order(1)
+    @DisplayName("Тест просмотра брони")
     @Test
-    void getById() throws Exception {
-        var answerSignUp = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/sign/in")
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"username\":\"Viktor\", \"password\":\"password123\"}")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsByteArray();
-        var token = getTokenFromAnswer(answerSignUp);
+    void getById() {
+        final var token = TestUtils.signIn(mockMvc, "Viktor", "password123");
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/bookings/booking/1")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
@@ -104,19 +95,12 @@ class BookingControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.finish").value("24-10-2025"));
     }
 
+    @SneakyThrows
     @Order(2)
+    @DisplayName("Тест получения всех бронирований пользователя")
     @Test
-    void getAll() throws Exception {
-        var answerSignUp = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/sign/in")
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"username\":\"Viktor\", \"password\":\"password123\"}")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsByteArray();
-        var token = getTokenFromAnswer(answerSignUp);
+    void getAll() {
+        final var token = TestUtils.signIn(mockMvc, "Viktor", "password123");
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/bookings")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
@@ -132,26 +116,12 @@ class BookingControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].finish").value("24-10-2025"));
     }
 
+    @SneakyThrows
     @Order(3)
+    @DisplayName("Тест удаления брони")
     @Test
-    void deleteBooking() throws Exception {
-        when(httpClient.findByName(any())).thenAnswer(invocationOnMock ->
-                ResponseEntity.ok(new HotelResponse(1, "Общага")));
-        when(httpClient.findRoomByNumber(any(), any())).thenAnswer(invocationOnMock ->
-                ResponseEntity.ok(new RoomResponse(1, 1, "313", true, 0)));
-        when(httpClient.releaseRoom(any(), any())).thenAnswer(invocationOnMock ->
-                ResponseEntity.ok(new ReservationDto(1, 1, "313", LocalDate.now())));
-
-        var answerSignUp = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/sign/in")
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"username\":\"Viktor\", \"password\":\"password123\"}")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsByteArray();
-        var token = getTokenFromAnswer(answerSignUp);
+    void deleteBooking(){
+        final var token = TestUtils.signIn(mockMvc, "Viktor", "password123");
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/bookings/booking/1")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
@@ -159,14 +129,5 @@ class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
-    }
-
-    private String getTokenFromAnswer(final byte[] answer) throws IOException {
-        final var str = new String(answer, StandardCharsets.UTF_8);
-        final var objectMapper = new ObjectMapper();
-        try (final var response = objectMapper.createParser(str)) {
-            final var jwt = response.readValueAs(JwtAuthenticationResponse.class);
-            return jwt.token();
-        }
     }
 }

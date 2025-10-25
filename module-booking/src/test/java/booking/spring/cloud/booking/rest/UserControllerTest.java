@@ -1,10 +1,7 @@
 package booking.spring.cloud.booking.rest;
 
-import booking.spring.cloud.booking.entities.User;
-import booking.spring.cloud.booking.mapper.UserMapper;
-import booking.spring.cloud.core.model.dto.JwtAuthenticationResponse;
-import booking.spring.cloud.core.model.dto.UserRole;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -13,53 +10,39 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 import static booking.spring.cloud.core.model.utils.Constants.AUTH_BEARER_PREFIX;
 import static booking.spring.cloud.core.model.utils.Constants.AUTH_HEADER_NAME;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DisplayName("Тестирование API пользователей")
 class UserControllerTest {
 
-    @MockitoSpyBean
-    private UserMapper mapper;
     @Autowired
     private MockMvc mockMvc;
 
+    @SneakyThrows
     @Order(0)
+    @DisplayName("Тест добавления пользователя")
     @Test
-    void getById() throws Exception {
-        when(mapper.dtoToEntity(any())).thenAnswer(invocationOnMock -> {
-            final var user = new User();
-            user.setUsername("Viktor");
-            user.setPassword("password123");
-            user.setRole(UserRole.ROLE_ADMIN);
-            return user;
-        });
-
-        var answerSignUp = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/sign/up")
+    void getById() {
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/sign/up")
                         .accept(MediaType.APPLICATION_JSON_VALUE)
                         .content("{\"username\":\"Viktor\", \"password\":\"password123\"}")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsByteArray();
-        var token = getTokenFromAnswer(answerSignUp);
+                .andExpect(MockMvcResultMatchers.jsonPath("$.token").exists());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/users/user/1")
+        final var token = TestUtils.signIn(mockMvc, "root", "password123");
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users/user/2")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
                         .accept(MediaType.APPLICATION_JSON_VALUE)
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -69,19 +52,27 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.username").value("Viktor"));
     }
 
+    @SneakyThrows
     @Order(1)
+    @DisplayName("Тест добавления прав администратора")
     @Test
-    void getAll() throws Exception {
-        var answerSignUp = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/sign/in")
+    void setAdmin() {
+        final var token = TestUtils.signIn(mockMvc, "root", "password123");
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/users/2/set-admin")
+                        .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
                         .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"username\":\"Viktor\", \"password\":\"password123\"}")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsByteArray();
-        var token = getTokenFromAnswer(answerSignUp);
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    @SneakyThrows
+    @Order(2)
+    @DisplayName("Тест просмотра списка пользователей")
+    @Test
+    void getAll() {
+        final var token = TestUtils.signIn(mockMvc, "Viktor", "password123");
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
@@ -90,44 +81,16 @@ class UserControllerTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].username").value("Viktor"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].username").value("root"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].username").value("Viktor"));
     }
 
-    @Order(2)
-    @Test
-    void setAdmin() throws Exception {
-        var answerSignUp = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/sign/in")
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"username\":\"Viktor\", \"password\":\"password123\"}")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsByteArray();
-        var token = getTokenFromAnswer(answerSignUp);
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/users/1/set-admin")
-                        .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
-    }
-
+    @SneakyThrows
     @Order(3)
+    @DisplayName("Тест удаления пользователя")
     @Test
-    void deleteUser() throws Exception {
-        var answerSignUp = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/sign/in")
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"username\":\"Viktor\", \"password\":\"password123\"}")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsByteArray();
-        var token = getTokenFromAnswer(answerSignUp);
+    void deleteUser() {
+        final var token = TestUtils.signIn(mockMvc, "root", "password123");
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/user")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
@@ -136,14 +99,5 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
-    }
-
-    private String getTokenFromAnswer(final byte[] answer) throws IOException {
-        final var str = new String(answer, StandardCharsets.UTF_8);
-        final var objectMapper = new ObjectMapper();
-        try (final var response = objectMapper.createParser(str)) {
-            final var jwt = response.readValueAs(JwtAuthenticationResponse.class);
-            return jwt.token();
-        }
     }
 }

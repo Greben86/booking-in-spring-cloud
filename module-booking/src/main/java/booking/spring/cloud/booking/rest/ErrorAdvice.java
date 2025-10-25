@@ -45,8 +45,8 @@ public class ErrorAdvice {
      */
     @ResponseStatus(HttpStatus.I_AM_A_TEAPOT)
     @ExceptionHandler(Exception.class)
-    public List<String> handleLogicErrors(final Exception ex) {
-        return List.of(ex.getMessage());
+    public String handleLogicErrors(final Exception ex) {
+        return ex.getMessage();
     }
 
 }

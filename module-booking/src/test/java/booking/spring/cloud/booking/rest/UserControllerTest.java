@@ -69,7 +69,7 @@ class UserControllerTest {
     void setAdmin() {
         final var token = TestUtils.signIn(mockMvc, "root", "password123");
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/users/2/set-admin")
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/users/user/2/set-admin")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
                         .accept(MediaType.APPLICATION_JSON_VALUE)
                         .contentType(MediaType.APPLICATION_JSON_VALUE))

@@ -62,7 +62,7 @@ public class UserController {
     }
 
     @Operation(summary = "Добавить роль ADMIN пользователю")
-    @PutMapping("/{id}/set-admin")
+    @PutMapping("/user/{id}/set-admin")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN')")
     public void setAdmin(@PathVariable("id") Long id) {

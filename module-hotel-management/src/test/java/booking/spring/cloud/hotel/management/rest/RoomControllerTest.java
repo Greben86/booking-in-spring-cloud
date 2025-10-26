@@ -141,7 +141,6 @@ class RoomControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/rooms/room/recommend-by-hotel/1")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
-                        .param("date", "2000-10-31")
                         .accept(MediaType.APPLICATION_JSON_VALUE)
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(MockMvcResultHandlers.print())
@@ -255,5 +254,26 @@ class RoomControllerTest {
                     .andDo(MockMvcResultHandlers.print())
                     .andExpect(MockMvcResultMatchers.status().isNoContent());
         }
+    }
+
+    @SneakyThrows
+    @Order(10)
+    @DisplayName("Тест получения статистики популярных апартаментов")
+    @Test
+    void popularRooms() {
+        final var token = TestUtils.generateToken("Viktor", UserRole.ROLE_USER, jwtSigningKey);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/rooms/popular")
+                        .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value("1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].hotelId").value("1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].number").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].available").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].times_booked").exists());
     }
 }

@@ -18,7 +18,7 @@ spring:
             - id: module-hotel-management
               uri: http://module-hotel-management:8082
               predicates:
-                - Path=/api/hotels,/api/hotels/hotel,/api/hotels/hotel/{id},/api/rooms,/api/rooms/room,/api/rooms/room/{id}
+                - Path=/api/hotels,/api/hotels/hotel,/api/hotels/hotel/{id},/room/recommend-by-hotel/{hotelId},/api/rooms,/api/rooms/room,/api/rooms/room/{id}
     discovery:
       locator:
         enabled: true

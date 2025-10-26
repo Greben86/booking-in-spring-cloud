@@ -44,7 +44,7 @@ public class RoomController {
         return service.getAll();
     }
 
-    @Operation(summary = "Информация о апартаментах по ID")
+    @Operation(summary = "Информация об апартаментах по ID")
     @GetMapping("/room/{id}")
     @ResponseStatus(HttpStatus.OK)
     public RoomResponse getById(@PathVariable Long id) {
@@ -82,14 +82,12 @@ public class RoomController {
         return service.findByHotelAndNumber(hotelId, number);
     }
 
-    @Operation(summary = "Получить список свободных апартаментов на дату")
+    @Operation(summary = "Получить список доступных апартаментов")
     @GetMapping("/room/recommend-by-hotel/{hotelId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<RoomResponse> getRecommend(@PathVariable Long hotelId,
-                                           @RequestParam(name = "date")
-                                           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        log.info("Список свободных апартаментов на дату");
-        return service.getRecommend(hotelId, date);
+    public List<RoomResponse> getRecommend(@PathVariable Long hotelId) {
+        log.info("Список доступных апартаментов");
+        return service.getRecommend(hotelId);
     }
 
     @Operation(summary = "Установка доступности апартаментов")
@@ -110,6 +108,7 @@ public class RoomController {
         service.unsetAvailable(id);
     }
 
+    @Operation(summary = "Установка брони апартаментов")
     @PutMapping("/room/{id}/confirm-availability")
     @ResponseStatus(HttpStatus.CREATED)
     public ReservationDto confirmAvailability(@PathVariable("id") Long roomId,
@@ -122,6 +121,7 @@ public class RoomController {
         return service.confirmAvailability(requestId, roomId, start, end);
     }
 
+    @Operation(summary = "Снятие брони с апартаментов")
     @DeleteMapping("/room/{id}/release")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Void> release(@PathVariable("id") Long roomId,
@@ -132,5 +132,12 @@ public class RoomController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    @Operation(summary = "Статистика популярных апартаментов")
+    @GetMapping("/popular")
+    @ResponseStatus(HttpStatus.OK)
+    public List<RoomResponse> popularRooms() {
+        return service.popularRooms();
     }
 }

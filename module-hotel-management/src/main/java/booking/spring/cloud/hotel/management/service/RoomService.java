@@ -72,7 +72,7 @@ public class RoomService {
         return true;
     }
 
-    public List<RoomResponse> getRecommend(Long hotelId, LocalDate date) {
+    public List<RoomResponse> getRecommend(Long hotelId) {
         return hotelRepository.findById(hotelId)
                 .map(Hotel::getRooms)
                 .orElseThrow(NullPointerException::new).stream()
@@ -135,5 +135,12 @@ public class RoomService {
 
         room.setAvailable(false);
         roomRepository.save(room);
+    }
+
+    public List<RoomResponse> popularRooms() {
+        return roomRepository.findAll().stream()
+                .sorted(Comparator.comparingInt(Room::getTimes_booked).reversed())
+                .map(roomMapper::entityToDto)
+                .toList();
     }
 }

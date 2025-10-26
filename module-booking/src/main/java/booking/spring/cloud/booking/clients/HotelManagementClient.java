@@ -26,9 +26,7 @@ public interface HotelManagementClient {
                                                   @RequestParam(name = "number") String number);
 
     @GetMapping("/api/rooms/room/recommend-by-hotel/{hotelId}")
-    List<RoomResponse> getRecommend(@PathVariable Long hotelId,
-                                    @RequestParam(name = "date")
-                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date);
+    List<RoomResponse> getRecommend(@PathVariable Long hotelId);
 
 
     @PutMapping("/api/rooms/room/{roomId}/confirm-availability")

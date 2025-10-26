@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: module-gateway
+  cloud:
+    config:
+      enabled: true
+      uri: module-gateway.yml
+  config:
+    import: configserver:http://module-configuration:8888/

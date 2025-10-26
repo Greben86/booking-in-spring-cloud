@@ -1,0 +1,55 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: module-gateway
+  cloud:
+    config:
+      import-check:
+        enabled: false
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: module-booking
+              uri: http://module-booking:8081
+              predicates:
+                - Path=/api/auth/sign/up,/api/auth/sign/in,/api/users,/api/users/user,/api/users/user/{id},/api/bookings,/api/bookings/booking,/api/bookings/booking/{id}
+            - id: module-hotel-management
+              uri: http://module-hotel-management:8082
+              predicates:
+                - Path=/api/hotels,/api/hotels/hotel,/api/hotels/hotel/{id},/room/recommend-by-hotel/{hotelId},/api/rooms,/api/rooms/room,/api/rooms/room/{id}
+              filters:
+                - JwtAuthFilter
+    discovery:
+      locator:
+        enabled: true
+        lower-case-service-id: true
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: true
+    fetchRegistry: true
+    service-url:
+      defaultZone: http://module-discovery:8761/eureka
+    healthcheck:
+      enabled: true
+  instance:
+    preferIpAddress: true
+    metadataMap:
+      management.context-path: /
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: module-booking
+        url: /bookings/v3/api-docs
+      - name: module-hotel-management
+        url: /hotels/v3/api-docs

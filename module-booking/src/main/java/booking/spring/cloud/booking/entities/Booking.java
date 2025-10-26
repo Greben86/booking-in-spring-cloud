@@ -25,6 +25,9 @@ public class Booking {
     @EqualsAndHashCode.Include
     private long id;
 
+    @Column
+    private String requestId;
+
     @ManyToOne
     private User user;
 
@@ -34,11 +37,15 @@ public class Booking {
     @Column(length = 10)
     private String room;
 
+    @Column
     private LocalDate start;
 
+    @Column
     private LocalDate finish;
 
+    @Column
     private Status status;
 
-    private LocalDateTime create_time;
+    @Column
+    private LocalDateTime created_at;
 }

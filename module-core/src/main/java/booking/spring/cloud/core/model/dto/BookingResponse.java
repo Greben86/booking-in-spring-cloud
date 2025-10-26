@@ -12,8 +12,12 @@ import java.time.LocalDateTime;
 @Schema(description = "Бронирование номера отеля")
 public record BookingResponse(
         @Schema(description = "Идентификатор бронирования", example = "1")
-        @NotBlank
+        @NotNull
         Long id,
+        @Schema(description = "Уникальный идентификатор запроса", example = "123")
+        @Size(min = 1, max = 255, message = "Уникальный идентификатор запроса должен содержать от 1 до 255 символов")
+        @NotBlank(message = "Уникальный идентификатор запроса не может быть пустыми")
+        String requestId,
         @Schema(description = "Название отеля", example = "Хилтон")
         @Size(min = 1, max = 255, message = "Название отеля должно содержать от 1 до 255 символов")
         @NotBlank(message = "Название отеля не может быть пустыми")
@@ -34,5 +38,5 @@ public record BookingResponse(
         Status status,
         @Schema(description = "Дата и час окончания бронирования", pattern = "dd-MM-yyyy HH:mm:ss")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone="Europe/Moscow")
-        LocalDateTime create_time) {
+        LocalDateTime created_at) {
 }

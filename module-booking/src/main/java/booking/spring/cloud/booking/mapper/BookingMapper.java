@@ -15,6 +15,7 @@ import org.mapstruct.ReportingPolicy;
 public interface BookingMapper {
 
     @Mapping(target = "status", expression = "java(Status.PENDING)")
+    @Mapping(target = "created_at", expression = "java(LocalDateTime.now())")
     Booking dtoToEntity(BookingRequest dto);
 
     BookingResponse entityToDto(Booking entity);

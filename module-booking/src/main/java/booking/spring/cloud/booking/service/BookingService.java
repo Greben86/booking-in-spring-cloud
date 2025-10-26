@@ -47,9 +47,11 @@ public class BookingService {
         if (booking.start().isAfter(booking.finish()))
             throw new IllegalArgumentException("Начало периода бронирования должно быть раньше окончания");
 
-        var entity = mapper.dtoToEntity(booking);
-        entity.setUser(userService.getCurrentUser());
-        entity = repository.save(entity);
+        final var existsEntity = repository.findByRequestId(booking.requestId());
+        if (existsEntity.isPresent()) {
+            log.warn("Такой запрос уже обрабатывался");
+            return mapper.entityToDto(existsEntity.get());
+        }
 
         final var hotel = readBody(httpClient.findByName(booking.hotel()))
                 .orElseThrow(() -> new IllegalArgumentException("Отель не найден"));
@@ -61,17 +63,28 @@ public class BookingService {
             throw new IllegalArgumentException("Апартаменты не доступны");
         }
 
+        var entity = mapper.dtoToEntity(booking);
         if (bookingRangeChecker.isOverlapping(entity)) {
-
+            throw new IllegalArgumentException("Найдено пересечение с другим бронированием");
         }
-
-        final var success = booking.start().datesUntil(booking.finish())
-                .allMatch(date -> readBody(httpClient.confirmAvailability(room.id(), date)).isPresent());
-
-        entity.setStatus(success ? Status.CONFIRMED : Status.CANCELLED);
+        entity.setUser(userService.getCurrentUser());
         entity = repository.save(entity);
 
-        return mapper.entityToDto(entity);
+        try {
+            log.info("Блокировка апартаментов");
+            final var success = readBody(httpClient
+                    .confirmAvailability(room.id(), booking.requestId(), booking.start(), booking.finish()))
+                    .isPresent();
+
+            entity.setStatus(success ? Status.CONFIRMED : Status.CANCELLED);
+            entity = repository.save(entity);
+
+            return mapper.entityToDto(entity);
+        } catch (Exception e) {
+            log.error("Компенсация блокировки апартаментов", e);
+            httpClient.releaseRoom(room.id(), booking.requestId());
+            throw e;
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -90,10 +103,8 @@ public class BookingService {
         final var room = readBody(httpClient.findRoomByNumber(hotel.id(), booking.getRoom()))
                 .orElseThrow(() -> new IllegalArgumentException("Номер не найден"));
 
-        if (Status.CONFIRMED.equals(booking.getStatus())) {
-            booking.getStart().datesUntil(booking.getFinish())
-                    .forEach(date -> httpClient.releaseRoom(room.id(), date));
-        }
+        log.info("Компенсация блокировки апартаментов");
+        httpClient.releaseRoom(room.id(), booking.getRequestId());
 
         repository.deleteById(id);
 

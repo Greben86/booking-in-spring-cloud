@@ -1,6 +1,5 @@
 package booking.spring.cloud.hotel.management.rest;
 
-import booking.spring.cloud.core.model.dto.JwtAuthenticationResponse;
 import booking.spring.cloud.core.model.dto.RoomResponse;
 import booking.spring.cloud.core.model.dto.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,13 +21,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import static booking.spring.cloud.core.model.utils.Constants.AUTH_BEARER_PREFIX;
 import static booking.spring.cloud.core.model.utils.Constants.AUTH_HEADER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -196,16 +191,20 @@ class RoomControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/rooms/room/1/confirm-availability")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
-                        .param("date", "2000-10-31")
+                        .param("requestId", "test")
+                        .param("start", "2000-10-30")
+                        .param("end", "2000-10-31")
                         .accept(MediaType.APPLICATION_JSON_VALUE)
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.requestId").value("test"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.hotelId").value("1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.roomId").value("1"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.roomNumber").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.date").value("31-10-2000"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.start").value("30-10-2000"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.finish").value("31-10-2000"));
     }
 
     @SneakyThrows
@@ -217,7 +216,7 @@ class RoomControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/rooms/room/1/release")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
-                        .param("date", "2000-10-31")
+                        .param("requestId", "test")
                         .accept(MediaType.APPLICATION_JSON_VALUE)
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(MockMvcResultHandlers.print())

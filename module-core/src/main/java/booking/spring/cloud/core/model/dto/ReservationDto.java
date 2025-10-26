@@ -10,6 +10,10 @@ import java.time.LocalDate;
 
 @Schema(description = "Бронирование номера отеля")
 public record ReservationDto(
+        @Schema(description = "Уникальный идентификатор запроса", example = "123")
+        @Size(min = 1, max = 255, message = "Уникальный идентификатор запроса должен содержать от 1 до 255 символов")
+        @NotBlank(message = "Уникальный идентификатор запроса не может быть пустыми")
+        String requestId,
         @Schema(description = "Идентификатор отеля", example = "1")
         @NotBlank(message = "Идентификатор отеля не может быть пустыми")
         long hotelId,
@@ -20,8 +24,12 @@ public record ReservationDto(
         @Size(min = 1, max = 10, message = "Номер апартаментов отеля должно содержать от 1 до 10 символов")
         @NotBlank(message = "Номер апартаментов отеля не может быть пустыми")
         String roomNumber,
-        @Schema(description = "Дата бронирования", pattern = "dd-MM-yyyy")
+        @Schema(description = "Дата начала бронирования", pattern = "dd-MM-yyyy")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy", timezone="Europe/Moscow")
-        @NotNull(message = "Дата бронирования не может быть пустой")
-        LocalDate date) {
+        @NotNull(message = "Дата начала бронирования не может быть пустой")
+        LocalDate start,
+        @Schema(description = "Дата окончания бронирования", pattern = "dd-MM-yyyy")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy", timezone="Europe/Moscow")
+        @NotNull(message = "Дата окончания бронирования не может быть пустой")
+        LocalDate finish) {
 }

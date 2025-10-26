@@ -76,28 +76,25 @@ public class RoomService {
         return hotelRepository.findById(hotelId)
                 .map(Hotel::getRooms)
                 .orElseThrow(NullPointerException::new).stream()
-                .filter(room -> checkAvailableByDate(room, date))
                 .sorted(Comparator.comparingInt(Room::getTimes_booked).reversed())
                 .map(roomMapper::entityToDto)
                 .toList();
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public ReservationDto confirmAvailability(Long roomId, LocalDate date) {
+    public ReservationDto confirmAvailability(String requestId, Long roomId, LocalDate start, LocalDate finish) {
         final var room = roomRepository.findById(roomId)
                 .orElseThrow(NullPointerException::new);
         if (!room.isAvailable()) {
             throw new IllegalStateException("Апартаменты не доступны!");
         }
 
-        if (!checkAvailableByDate(room, date)) {
-            throw new IllegalStateException("Дата занята!");
-        }
-
         final var reservation = new Reservation();
+        reservation.setRequestId(requestId);
         reservation.setRoom(room);
         reservation.setHotel(room.getHotel());
-        reservation.setDate(date);
+        reservation.setStart(start);
+        reservation.setFinish(finish);
         reservationRepository.save(reservation);
 
         room.setTimes_booked(room.getTimes_booked() + 1);
@@ -107,11 +104,11 @@ public class RoomService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public boolean release(Long roomId, LocalDate date) {
+    public boolean release(String requestId, Long roomId) {
         final var room = roomRepository.findById(roomId)
                 .orElseThrow(NullPointerException::new);
         final var reservation = room.getReservations().stream()
-                .filter(r -> date.isEqual(r.getDate()))
+                .filter(r -> requestId.equals(r.getRequestId()))
                 .findAny();
         if (reservation.isEmpty()) {
             return false;
@@ -120,12 +117,6 @@ public class RoomService {
         reservationRepository.delete(reservation.get());
 
         return true;
-    }
-
-    private boolean checkAvailableByDate(Room room, LocalDate date) {
-        return room.getReservations().stream()
-                .map(Reservation::getDate)
-                .noneMatch(date::isEqual);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

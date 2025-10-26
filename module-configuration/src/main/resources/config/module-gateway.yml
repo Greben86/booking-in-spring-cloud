@@ -19,3 +19,26 @@ spring:
               uri: http://module-hotel-management:8082
               predicates:
                 - Path=/api/hotels,/api/hotels/hotel,/api/hotels/hotel/{id},/api/rooms,/api/rooms/room,/api/rooms/room/{id}
+    discovery:
+      locator:
+        enabled: true
+        lower-case-service-id: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: module-booking
+        url: /bookings/v3/api-docs
+      - name: module-hotel-management
+        url: /hotels/v3/api-docs

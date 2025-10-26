@@ -1,5 +1,6 @@
 package booking.spring.cloud.hotel.management.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,7 +23,14 @@ public class Reservation {
     @EqualsAndHashCode.Include
     private long id;
 
-    private LocalDate date;
+    @Column
+    private String requestId;
+
+    @Column
+    private LocalDate start;
+
+    @Column
+    private LocalDate finish;
 
     @ManyToOne
     private Hotel hotel;

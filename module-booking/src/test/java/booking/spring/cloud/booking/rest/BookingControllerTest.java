@@ -49,10 +49,10 @@ class BookingControllerTest {
                 ResponseEntity.ok(new HotelResponse(1, "Общага")));
         when(httpClient.findRoomByNumber(any(), any())).thenAnswer(invocationOnMock ->
                 ResponseEntity.ok(new RoomResponse(1, 1, "313", true, 0)));
-        when(httpClient.confirmAvailability(any(), any())).thenAnswer(invocationOnMock ->
-                ResponseEntity.ok(new ReservationDto(1, 1, "313", LocalDate.now())));
+        when(httpClient.confirmAvailability(any(), any(), any(), any())).thenAnswer(invocationOnMock ->
+                ResponseEntity.ok(new ReservationDto("test", 1, 1, "313", LocalDate.now(), LocalDate.now())));
         when(httpClient.releaseRoom(any(), any())).thenAnswer(invocationOnMock ->
-                ResponseEntity.ok(new ReservationDto(1, 1, "313", LocalDate.now())));
+                ResponseEntity.ok(new ReservationDto("test", 1, 1, "313", LocalDate.now(), LocalDate.now())));
     }
 
     @Order(0)
@@ -72,12 +72,13 @@ class BookingControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/bookings/booking")
                         .header(AUTH_HEADER_NAME, AUTH_BEARER_PREFIX + token)
                         .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"hotel\": \"Общага\", \"room\": \"313\", \"start\": \"23-10-2025\", \"finish\": \"24-10-2025\"}")
+                        .content("{\"requestId\": \"test\", \"hotel\": \"Общага\", \"room\": \"313\", \"start\": \"23-10-2025\", \"finish\": \"24-10-2025\"}")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.requestId").value("test"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.hotel").value("Общага"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.room").value("313"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.start").value("23-10-2025"))
@@ -99,6 +100,7 @@ class BookingControllerTest {
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value("1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.requestId").value("test"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.hotel").value("Общага"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.room").value("313"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.start").value("23-10-2025"))
@@ -120,6 +122,7 @@ class BookingControllerTest {
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value("1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].requestId").value("test"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].hotel").value("Общага"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].room").value("313"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].start").value("23-10-2025"))

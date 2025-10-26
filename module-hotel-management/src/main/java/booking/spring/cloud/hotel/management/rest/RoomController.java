@@ -112,20 +112,22 @@ public class RoomController {
 
     @PutMapping("/room/{id}/confirm-availability")
     @ResponseStatus(HttpStatus.CREATED)
-    public ReservationDto confirmAvailability(@PathVariable Long id,
-                                              @RequestParam(name = "date")
-                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    public ReservationDto confirmAvailability(@PathVariable("id") Long roomId,
+                                              @RequestParam(name = "requestId") String requestId,
+                                              @RequestParam(name = "start")
+                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+                                              @RequestParam(name = "end")
+                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
         log.info("Бронирование апартаментов");
-        return service.confirmAvailability(id, date);
+        return service.confirmAvailability(requestId, roomId, start, end);
     }
 
     @DeleteMapping("/room/{id}/release")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Void> release(@PathVariable Long id,
-                                        @RequestParam(name = "date")
-                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    public ResponseEntity<Void> release(@PathVariable("id") Long roomId,
+                                        @RequestParam(name = "requestId") String requestId) {
         log.info("Снятие брони с апартаментов");
-        if (service.release(id, date)) {
+        if (service.release(requestId, roomId)) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

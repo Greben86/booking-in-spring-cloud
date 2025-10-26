@@ -30,13 +30,16 @@ public interface HotelManagementClient {
                                     @RequestParam(name = "date")
                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date);
 
+
     @PutMapping("/api/rooms/room/{roomId}/confirm-availability")
     ResponseEntity<ReservationDto> confirmAvailability(@PathVariable("roomId") Long roomId,
-                                                       @RequestParam(name = "date")
-                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date);
+                                                       @RequestParam(name = "requestId") String requestId,
+                                                       @RequestParam(name = "start")
+                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+                                                       @RequestParam(name = "end")
+                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end);
 
     @DeleteMapping("/api/rooms/room/{roomId}/release")
     ResponseEntity<ReservationDto> releaseRoom(@PathVariable("roomId") Long roomId,
-                                               @RequestParam(name = "date")
-                                               @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date);
+                                               @RequestParam(name = "requestId") String requestId);
 }

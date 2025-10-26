@@ -19,6 +19,8 @@ spring:
               uri: http://module-hotel-management:8082
               predicates:
                 - Path=/api/hotels,/api/hotels/hotel,/api/hotels/hotel/{id},/room/recommend-by-hotel/{hotelId},/api/rooms,/api/rooms/room,/api/rooms/room/{id}
+              filters:
+                - JwtAuthFilter
     discovery:
       locator:
         enabled: true
@@ -26,8 +28,17 @@ spring:
 
 eureka:
   client:
+    register-with-eureka: false
+    fetch-registry: true
+    fetchRegistry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://module-discovery:8761/eureka
+    healthcheck:
+      enabled: true
+  instance:
+    preferIpAddress: true
+    metadataMap:
+      management.context-path: /
 
 management:
   endpoints:

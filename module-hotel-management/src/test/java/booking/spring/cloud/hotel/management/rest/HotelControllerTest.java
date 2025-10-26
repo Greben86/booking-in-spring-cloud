@@ -132,4 +132,16 @@ class HotelControllerTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
+
+    @SneakyThrows
+    @Order(6)
+    @DisplayName("Тест ошибки доступа")
+    @Test
+    void testForbidden(){
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/hotels")
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
 }

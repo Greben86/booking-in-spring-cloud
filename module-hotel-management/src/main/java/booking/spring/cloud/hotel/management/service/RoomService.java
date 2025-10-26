@@ -12,6 +12,7 @@ import booking.spring.cloud.hotel.management.repository.HotelRepository;
 import booking.spring.cloud.hotel.management.repository.ReservationRepository;
 import booking.spring.cloud.hotel.management.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +21,13 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class RoomService {
 
+    private final TraceIdHolder traceIdHolder;
     private final HotelRepository hotelRepository;
     private final RoomRepository roomRepository;
     private final ReservationRepository reservationRepository;
@@ -99,6 +102,7 @@ public class RoomService {
 
         room.setTimes_booked(room.getTimes_booked() + 1);
         roomRepository.save(room);
+        log.info("{} Апартаменты забронированы", traceIdHolder.getTraceId());
 
         return reservationMapper.entityToDto(reservation);
     }
@@ -115,6 +119,7 @@ public class RoomService {
         }
 
         reservationRepository.delete(reservation.get());
+        log.info("{} Бронь снята", traceIdHolder.getTraceId());
 
         return true;
     }

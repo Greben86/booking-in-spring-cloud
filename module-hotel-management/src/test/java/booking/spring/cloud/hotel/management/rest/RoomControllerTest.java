@@ -276,4 +276,16 @@ class RoomControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].available").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].times_booked").exists());
     }
+
+    @SneakyThrows
+    @Order(11)
+    @DisplayName("Тест ошибки доступа")
+    @Test
+    void testForbidden(){
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/rooms/popular")
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
 }

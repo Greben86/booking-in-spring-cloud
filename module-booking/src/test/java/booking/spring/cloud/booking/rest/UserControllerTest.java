@@ -110,4 +110,16 @@ class UserControllerTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
+
+    @SneakyThrows
+    @Order(5)
+    @DisplayName("Тест ошибки доступа")
+    @Test
+    void testForbidden(){
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
 }

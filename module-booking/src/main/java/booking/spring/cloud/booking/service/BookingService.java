@@ -22,6 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookingService {
 
+    private final TraceIdHolder traceIdHolder;
     private final UserService userService;
     private final BookingRepository repository;
     private final BookingMapper mapper;
@@ -45,33 +46,33 @@ public class BookingService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public BookingResponse addBooking(BookingRequest booking) {
         if (booking.start().isAfter(booking.finish()))
-            throw new IllegalArgumentException("Начало периода бронирования должно быть раньше окончания");
+            throw new IllegalArgumentException(traceIdHolder.getTraceId()+ " Начало периода бронирования должно быть раньше окончания");
 
         final var existsEntity = repository.findByRequestId(booking.requestId());
         if (existsEntity.isPresent()) {
-            log.warn("Такой запрос уже обрабатывался");
+            log.warn("{} Такой запрос уже обрабатывался", traceIdHolder.getTraceId());
             return mapper.entityToDto(existsEntity.get());
         }
 
         final var hotel = readBody(httpClient.findByName(booking.hotel()))
-                .orElseThrow(() -> new IllegalArgumentException("Отель не найден"));
+                .orElseThrow(() -> new IllegalArgumentException(traceIdHolder.getTraceId()+ " Отель не найден"));
 
         final var room = readBody(httpClient.findRoomByNumber(hotel.id(), booking.room()))
-                .orElseThrow(() -> new IllegalArgumentException("Апартаменты не найдены"));
+                .orElseThrow(() -> new IllegalArgumentException(traceIdHolder.getTraceId()+ " Апартаменты не найдены"));
 
         if (!room.available()) {
-            throw new IllegalArgumentException("Апартаменты не доступны");
+            throw new IllegalArgumentException(traceIdHolder.getTraceId()+ " Апартаменты не доступны");
         }
 
         var entity = mapper.dtoToEntity(booking);
         if (bookingRangeChecker.isOverlapping(entity)) {
-            throw new IllegalArgumentException("Найдено пересечение с другим бронированием");
+            throw new IllegalArgumentException(traceIdHolder.getTraceId()+ " Найдено пересечение с другим бронированием");
         }
         entity.setUser(userService.getCurrentUser());
         entity = repository.save(entity);
 
         try {
-            log.info("Блокировка апартаментов");
+            log.info("{} Блокировка апартаментов", traceIdHolder.getTraceId());
             final var success = readBody(httpClient
                     .confirmAvailability(room.id(), booking.requestId(), booking.start(), booking.finish()))
                     .isPresent();
@@ -81,7 +82,7 @@ public class BookingService {
 
             return mapper.entityToDto(entity);
         } catch (Exception e) {
-            log.error("Компенсация блокировки апартаментов", e);
+            log.error("{} Компенсация блокировки апартаментов", traceIdHolder.getTraceId(), e);
             httpClient.releaseRoom(room.id(), booking.requestId());
             throw e;
         }
@@ -103,7 +104,7 @@ public class BookingService {
         final var room = readBody(httpClient.findRoomByNumber(hotel.id(), booking.getRoom()))
                 .orElseThrow(() -> new IllegalArgumentException("Номер не найден"));
 
-        log.info("Компенсация блокировки апартаментов");
+        log.info("{} Компенсация блокировки апартаментов", traceIdHolder.getTraceId());
         httpClient.releaseRoom(room.id(), booking.getRequestId());
 
         repository.deleteById(id);
@@ -113,7 +114,7 @@ public class BookingService {
 
     private <T> Optional<T> readBody(ResponseEntity<T> response) {
         if (!response.getStatusCode().is2xxSuccessful()) {
-            log.error("Status code={}, body={}", response.getStatusCode().value(), response.getBody());
+            log.error("{} Status code={}, body={}", traceIdHolder.getTraceId(), response.getStatusCode().value(), response.getBody());
             return Optional.empty();
         }
 

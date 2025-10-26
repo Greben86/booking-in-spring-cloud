@@ -1,26 +1,29 @@
 # Booking in spring cloud — Система бронирований отелей
 
-Многомодульный пример распределённого приложения на Spring Boot/Cloud:
+Многомодульный проект распределённого приложения на Spring Boot/Cloud:
 - Module Configuration (Spring Config Server)
 - Module Gateway (Spring Cloud Gateway)
 - Module Booking (JWT-аутентификация, бронирования, согласованность)
 - Module Hotel Management (CRUD отелей и номеров, агрегаты по загруженности)
 - Module Discovery (Eureka Server, Service Registry, динамическое обнаружение сервисов)
 
-Все сервисы используют встроенную БД H2. Взаимодействие между сервисами выполняется как последовательность локальных транзакций (без глобальных распределённых транзакций).
+Все сервисы используют встроенную БД H2. 
+Взаимодействие между сервисами выполняется как последовательность локальных транзакций (без глобальных распределённых транзакций).
+
+![Схема приложения](booking-in-spring-cloud.png)
 
 ## Возможности
 - Регистрация и вход пользователей (JWT) через Booking Service
-- Создание бронирований с двухшаговой согласованностью (PENDING → CONFIRMED/CANCELLED с компенсацией)
+- Создание бронирований с двухшаговой согласованностью (`PENDING` → `CONFIRMED`/`CANCELLED` с компенсацией)
 - Идемпотентность запросов с `requestId`
-- Повторы с экспоненциальной паузой и таймауты при удалённых вызовах
+- Повторы с паузой и таймауты при удалённых вызовах (добавлен Retryer для OpenFeign)
 - Подсказки по выбору номера (сортировка по `times_booked`)
 - Администрирование пользователей (CRUD) и отелей/номеров (CRUD) для пользователей с правами администратора
 - Агрегации: популярность номеров по `times_booked`
 
 ## Архитектура и порты
 - `module-configuration`: порт 8888, это сервис конфигураций
-- `module-discovery`: порт 8761, это eureka
+- `module-discovery`: порт 8761, это Eureka
 - `module-gateway`: порт 8080, это точка входа в приложение
 - `module-booking`: порт 8081, регистрируется в Eureka под именем `module-booking`
 - `module-hotel-management`: порт 8082, регистрируется в Eureka под именем `module-hotel-management`
@@ -59,7 +62,7 @@ curl -X POST http://localhost:8080/api/auth/sign/up \
 ```
 2) Вход и получение JWT
 ```bash
-TOKEN=$(curl -X POST http://localhost:8080/api/auth/sign/in \
+TOKEN=$(curl -s -X POST "http://localhost:8080/api/auth/sign/in" \
   -H 'Content-Type: application/json' \
   -d '{
   "username": "root",
@@ -154,6 +157,11 @@ curl -X GET http://localhost:8080/api/bookings \
 - Gateway (агрегация UI): `http://localhost:8080/swagger-ui.html` (переключатель спецификаций)
 
 ## Тестирование
+- UserControllerTest - тестирование операций с пользователями
+- BookingControllerTest - тестирование операций с бронированием
+- HotelControllerTest - тестирование операций с отелями
+- RoomControllerTest - тестирование операций с апартаментами
+Каждый тест содержит проверку работы каждого эндпойнта, а также негативный сценарий
 
 Запуск всех тестов:
 ```bash

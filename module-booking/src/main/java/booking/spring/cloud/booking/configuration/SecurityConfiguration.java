@@ -51,7 +51,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/auth/key", "/api/auth/sign/*").permitAll()
                         .requestMatchers("/h2-console", "/h2-console/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**", "/module-booking/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

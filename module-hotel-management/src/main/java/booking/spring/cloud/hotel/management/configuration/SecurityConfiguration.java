@@ -42,7 +42,7 @@ public class SecurityConfiguration {
                         // ** - любое количество уровней вложенности
                         .requestMatchers("/h2-console", "/h2-console/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**", "/module-hotel-management/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

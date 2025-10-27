@@ -12,13 +12,13 @@ spring:
         webflux:
           routes:
             - id: module-booking
-              uri: http://module-booking:8081
+              uri: lb://module-booking
               predicates:
-                - Path=/api/auth/sign/up,/api/auth/sign/in,/api/users,/api/users/user,/api/users/user/{id},/api/bookings,/api/bookings/booking,/api/bookings/booking/{id}
+                - Path=/module-booking/v3/api-docs,/api/auth/sign/up,/api/auth/sign/in,/api/users,/api/users/user,/api/users/user/{id},/api/bookings,/api/bookings/booking,/api/bookings/booking/{id}
             - id: module-hotel-management
-              uri: http://module-hotel-management:8082
+              uri: lb://module-hotel-management
               predicates:
-                - Path=/api/hotels,/api/hotels/hotel,/api/hotels/hotel/{id},/room/recommend-by-hotel/{hotelId},/api/rooms,/api/rooms/room,/api/rooms/room/{id}
+                - Path=/module-hotel-management/v3/api-docs,/api/hotels,/api/hotels/hotel,/api/hotels/hotel/{id},/room/recommend-by-hotel/{hotelId},/api/rooms,/api/rooms/room,/api/rooms/room/{id}
               filters:
                 - JwtAuthFilter
     discovery:
@@ -50,6 +50,6 @@ springdoc:
   swagger-ui:
     urls:
       - name: module-booking
-        url: /bookings/v3/api-docs
+        url: /module-booking/v3/api-docs
       - name: module-hotel-management
-        url: /hotels/v3/api-docs
+        url: /module-hotel-management/v3/api-docs

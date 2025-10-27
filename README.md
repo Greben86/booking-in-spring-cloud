@@ -148,12 +148,10 @@ curl -X GET http://localhost:8080/api/bookings \
 - Повторы с backoff и таймауты в удалённых вызовах к Hotel через `OpenFeign`.
 
 ## Консоль H2
-- Включена для module-booking через прямой порт сервиса: `http://localhost:8081/h2-console`
-- Включена для module-hotel-management через прямой порт сервиса: `http://localhost:8082/h2-console`
+- Включена для module-booking через прямой порт сервиса: `http://localhost:8081/h2-console`, база данных `jdbc:h2:mem:booking_db` логин `sa` а пароля нет
+- Включена для module-hotel-management через прямой порт сервиса: `http://localhost:8082/h2-console`, база данных `jdbc:h2:mem:hotel_db` логин `sa` а пароля нет
 
 ## Swagger / OpenAPI
-- Booking Service UI: `http://localhost:8080/bookings/v3/api-docs/swagger-ui.html`
-- Hotel Service UI: `http://localhost:8080/hotels/v3/api-docs/swagger-ui.html`
 - Gateway (агрегация UI): `http://localhost:8080/swagger-ui.html` (переключатель спецификаций)
 
 ## Тестирование

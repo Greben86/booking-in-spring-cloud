@@ -35,3 +35,10 @@ eureka:
     preferIpAddress: true
     metadataMap:
       management.context-path: /
+
+
+springdoc:
+  api-docs:
+    path: /module-hotel-management/v3/api-docs
+  swagger-ui:
+    path: /module-hotel-management/swagger-ui.html

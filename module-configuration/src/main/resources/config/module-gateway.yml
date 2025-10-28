@@ -14,11 +14,11 @@ spring:
             - id: module-booking
               uri: lb://module-booking
               predicates:
-                - Path=/module-booking/v3/api-docs,/api/auth/sign/up,/api/auth/sign/in,/api/users,/api/users/user,/api/users/user/{id},/api/bookings,/api/bookings/booking,/api/bookings/booking/{id}
+                - Path=/module-booking/v3/api-docs,/api/auth/sign/up,/api/auth/sign/in,/api/users,/api/users/**,/api/bookings,/api/bookings/**
             - id: module-hotel-management
               uri: lb://module-hotel-management
               predicates:
-                - Path=/module-hotel-management/v3/api-docs,/api/hotels,/api/hotels/hotel,/api/hotels/hotel/{id},/room/recommend-by-hotel/{hotelId},/api/rooms,/api/rooms/room,/api/rooms/room/{id}
+                - Path=/module-hotel-management/v3/api-docs,/api/hotels,/api/hotels/**,/api/rooms,/api/rooms/**
               filters:
                 - JwtAuthFilter
     discovery:
